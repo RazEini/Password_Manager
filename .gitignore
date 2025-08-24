@@ -1,0 +1,82 @@
+# -----------------------
+# Python environment & build
+# -----------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+pip-log.txt
+*.egg
+*.whl
+
+# -----------------------
+# Unit test / coverage
+# -----------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# -----------------------
+# Jupyter
+# -----------------------
+.ipynb_checkpoints
+
+# -----------------------
+# IDE / Editor configs
+# -----------------------
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------
+# OS files
+# -----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+*~
+
+# -----------------------
+# Logs & temp files
+# -----------------------
+*.log
+*.tmp
+*.bak
+*.swp
+
+# -----------------------
+# Vault / Password Files - Smart
+# -----------------------
+# Ignore any file whose name contains sensitive keywords
+# (case-insensitive)
+*[Vv][Aa][Uu][Ll][Tt]*  # anything with 'vault'
+*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]*  # anything with 'password'
+*[Ss][Ee][Cc][Rr][Ee][Tt]*  # anything with 'secret'
+*.env
+*.key
+*.pem
+*.crt
+*.p12
+
+# -----------------------
+# CSV files with sensitive info
+# -----------------------
+*[Vv][Aa][Uu][Ll][Tt]*.csv
+*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]*.csv
+*[Ss][Ee][Cc][Rr][Ee][Tt]*.csv
