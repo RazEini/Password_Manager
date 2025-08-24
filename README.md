@@ -66,3 +66,8 @@ Python Password Manager - CLI Tool
 - תמיד הקפד לעבוד עם Vault הנכון (--vault filename.json)
 - אל תפרסם או תשלח את קובץ Vault – הוא מכיל סיסמאות מוצפנות
 - הוספת שירות קיים עם add יעדכן את הסיסמה הקיימת
+
+
+👨‍💻 Raz Eini (2025)
+
+
