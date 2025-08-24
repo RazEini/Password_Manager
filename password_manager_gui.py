@@ -6,11 +6,12 @@ Vault חדש נוצר אוטומטית אם לא קיים.
 """
 
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 import pyperclip
 from password_manager import Vault, generate_password
 
 VAULT_FILE = "vault.json"
+
 
 class PasswordManagerApp(tk.Tk):
     def __init__(self):
@@ -48,39 +49,111 @@ class PasswordManagerApp(tk.Tk):
         self.copy_button = tk.Button(self.right_frame, text="Copy Password", command=self.copy_password)
         self.copy_button.pack(pady=5)
 
+        # Help button (🔍) בפינה הימנית העליונה
+        help_button = tk.Button(self, text="🔍", font=("Arial", 14), command=self.show_help)
+        help_button.place(relx=1.0, rely=0.0, x=-10, y=10, anchor="ne")
+
         # Load or create vault
         self.login_or_create_vault()
 
+    # --- Custom dialog for password/input with eye toggle, centered ---
+    def ask_password(self, title="Enter Password", prompt="Password:", is_password=True):
+        top = tk.Toplevel(self)
+        top.title(title)
+        top.geometry("300x120")
+        top.resizable(False, False)
+        top.grab_set()
+
+        # --- Center the dialog ---
+        top.update_idletasks()
+        try:
+            parent_x = self.winfo_x()
+            parent_y = self.winfo_y()
+            parent_width = self.winfo_width()
+            parent_height = self.winfo_height()
+        except:
+            parent_x = parent_y = 0
+            parent_width = self.winfo_screenwidth()
+            parent_height = self.winfo_screenheight()
+
+        x = parent_x + (parent_width // 2) - (300 // 2)
+        y = parent_y + (parent_height // 2) - (120 // 2)
+        top.geometry(f"+{x}+{y}")
+
+        tk.Label(top, text=prompt).pack(pady=5)
+
+        entry_var = tk.StringVar()
+        entry = tk.Entry(top, textvariable=entry_var, show="*" if is_password else "")
+        entry.pack(pady=5)
+        entry.focus()
+
+        if is_password:
+            def toggle_password():
+                if entry.cget("show") == "":
+                    entry.config(show="*")
+                    toggle_btn.config(text="הראה סיסמא")
+                else:
+                    entry.config(show="")
+                    toggle_btn.config(text="הסתר סיסמא")
+
+            toggle_btn = tk.Button(top, text="הראה סיסמא", command=toggle_password)
+            toggle_btn.pack()
+
+        result = {"value": None}
+
+        def on_ok():
+            result["value"] = entry_var.get()
+            top.destroy()
+
+        def on_cancel():
+            result["value"] = None
+            top.destroy()
+
+        button_frame = tk.Frame(top)
+        button_frame.pack(pady=10, fill=tk.X)
+        tk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, expand=True, padx=10)
+        tk.Button(button_frame, text="Cancel", command=on_cancel).pack(side=tk.RIGHT, expand=True, padx=10)
+
+        top.wait_window()
+        return result["value"]
+
     # --- Vault login or creation ---
     def login_or_create_vault(self):
-        while True:
-            try:
-                if not self.vault.exists():
-                    create = messagebox.askyesno("Vault not found", "Vault file not found. Create new vault?")
-                    if create:
-                        # GUI input for master password
-                        while True:
-                            master1 = simpledialog.askstring("Create Vault", "Enter new master password:", show="*")
-                            if not master1 or len(master1) < 8:
-                                messagebox.showwarning("Invalid", "Password must be at least 8 characters.")
-                                continue
-                            master2 = simpledialog.askstring("Confirm", "Confirm master password:", show="*")
-                            if master1 != master2:
-                                messagebox.showwarning("Mismatch", "Passwords do not match.")
-                                continue
-                            break
-                        self.master_password = master1
-                        self.vault.init_new(self.master_password)
-                        messagebox.showinfo("Vault Created", f"Vault created at {VAULT_FILE}")
-                    else:
+        try:
+            if not self.vault.exists():
+                create = messagebox.askyesno("Vault not found", "Vault file not found.\nDo you want to create a new vault?")
+                if not create:
+                    self.destroy()
+                    return
+
+                while True:
+                    master1 = self.ask_password("Create Vault", "Enter new master password:", is_password=True)
+                    if master1 is None:
                         self.destroy()
                         return
-                else:
-                    self.master_password = simpledialog.askstring("Master Password", "Enter master password:", show="*")
-                self.refresh_services()
-                break
-            except Exception as e:
-                messagebox.showerror("Error", str(e))
+                    if len(master1) < 8:
+                        messagebox.showwarning("Invalid", "Password must be at least 8 characters.")
+                        continue
+                    master2 = self.ask_password("Confirm Vault", "Confirm master password:", is_password=True)
+                    if master1 != master2:
+                        messagebox.showwarning("Mismatch", "Passwords do not match.")
+                        continue
+                    break
+
+                self.master_password = master1
+                self.vault.init_new(self.master_password)
+                messagebox.showinfo("Vault Created", f"Vault created at {VAULT_FILE}")
+
+            else:
+                self.master_password = self.ask_password("Master Password", "Enter master password:", is_password=True)
+                if self.master_password is None:
+                    self.destroy()
+                    return
+
+            self.refresh_services()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+            self.destroy()
 
     # --- UI methods ---
     def refresh_services(self):
@@ -110,20 +183,20 @@ class PasswordManagerApp(tk.Tk):
                 messagebox.showerror("Error", str(e))
 
     def add_entry(self):
-        service = simpledialog.askstring("Service", "Service name:")
+        service = self.ask_password("Add Service", "Service name:", is_password=False)
         if not service:
             return
-        username = simpledialog.askstring("Username", "Username:")
+        username = self.ask_password("Add Service", "Username:", is_password=False)
         if username is None:
             return
         pwd_option = messagebox.askyesno("Password", "Generate strong password automatically?")
         if pwd_option:
             password = generate_password(length=20)
         else:
-            password = simpledialog.askstring("Password", "Password:", show="*")
+            password = self.ask_password("Add Service", "Password:", is_password=True)
             if not password:
                 return
-        notes = simpledialog.askstring("Notes", "Notes (optional):") or ""
+        notes = self.ask_password("Add Service", "Notes (optional):", is_password=False) or ""
         try:
             self.vault.set_entry(self.master_password, service, username, password, notes)
             messagebox.showinfo("Success", f"Entry '{service}' saved.")
@@ -164,12 +237,12 @@ class PasswordManagerApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def change_master_password(self):
-        old = simpledialog.askstring("Old Password", "Enter old master password:", show="*")
+        old = self.ask_password("Old Password", "Enter old master password:", is_password=True)
         if old != self.master_password:
             messagebox.showerror("Error", "Old password incorrect")
             return
-        new = simpledialog.askstring("New Password", "Enter new master password:", show="*")
-        confirm = simpledialog.askstring("Confirm", "Confirm new master password:", show="*")
+        new = self.ask_password("New Password", "Enter new master password:", is_password=True)
+        confirm = self.ask_password("Confirm Password", "Confirm new master password:", is_password=True)
         if new != confirm:
             messagebox.showerror("Error", "New passwords do not match")
             return
@@ -186,6 +259,19 @@ class PasswordManagerApp(tk.Tk):
     def show_generated_password(self):
         pwd = generate_password(length=20)
         messagebox.showinfo("Generated Password", pwd)
+
+    def show_help(self):
+        help_text = (
+            "🔑 אפליקציית ניהול הסיסמאות:\n\n"
+            "1. 'Add' – הוספת אתר, שם משתמש וסיסמה.\n"
+            "2. 'Delete' – מחיקה של סיסמה קיימת.\n"
+            "3. 'Change Master Password' – שינוי סיסמת המאסטר.\n"
+            "4. 'Generate Password' – יצירת סיסמה חזקה אוטומטית.\n"
+            "5. בחירה ברשימת השירותים משמאל – מציגה את הפרטים המלאים.\n"
+            "6. 'Copy Password' – מעתיק את הסיסמה ללוח.\n\n"
+            "📌 כל הסיסמאות נשמרות בצורה מוצפנת ומאובטחת."
+        )
+        messagebox.showinfo("עזרה - איך להשתמש", help_text)
 
 
 if __name__ == "__main__":
