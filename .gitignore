@@ -80,3 +80,6 @@ Desktop.ini
 *[Vv][Aa][Uu][Ll][Tt]*.csv
 *[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]*.csv
 *[Ss][Ee][Cc][Rr][Ee][Tt]*.csv
+
+__pycache__/
+*.pyc
