@@ -6,11 +6,32 @@ Vault חדש נוצר אוטומטית אם לא קיים.
 """
 
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, scrolledtext
 import pyperclip
 from password_manager import Vault, generate_password
 
 VAULT_FILE = "vault.json"
+
+# --- פונקציה לבדיקת חוזק סיסמה ---
+def check_password_strength(password):
+    """
+    מחזירה (ok, reasons)
+    ok = True אם הסיסמה חזקה
+    reasons = רשימה של מה שחסר
+    """
+    reasons = []
+    if len(password) < 8:
+        reasons.append("Password too short (min 8 chars)")
+    if not any(c.islower() for c in password):
+        reasons.append("Missing lowercase letter")
+    if not any(c.isupper() for c in password):
+        reasons.append("Missing uppercase letter")
+    if not any(c.isdigit() for c in password):
+        reasons.append("Missing digit")
+    if not any(c in "!@#$%^&*()-_=+[]{}|;:,.<>?/~`" for c in password):
+        reasons.append("Missing special character")
+    ok = len(reasons) == 0
+    return ok, reasons
 
 
 class PasswordManagerApp(tk.Tk):
@@ -57,10 +78,10 @@ class PasswordManagerApp(tk.Tk):
         self.login_or_create_vault()
 
     # --- Custom dialog for password/input with eye toggle, centered ---
-    def ask_password(self, title="Enter Password", prompt="Password:", is_password=True):
+    def ask_password(self, title="Enter Password", prompt="Password:", is_password=True, show_strength=False):
         top = tk.Toplevel(self)
         top.title(title)
-        top.geometry("300x120")
+        top.geometry("350x250")
         top.resizable(False, False)
         top.grab_set()
 
@@ -76,8 +97,8 @@ class PasswordManagerApp(tk.Tk):
             parent_width = self.winfo_screenwidth()
             parent_height = self.winfo_screenheight()
 
-        x = parent_x + (parent_width // 2) - (300 // 2)
-        y = parent_y + (parent_height // 2) - (120 // 2)
+        x = parent_x + (parent_width // 2) - (350 // 2)
+        y = parent_y + (parent_height // 2) - (250 // 2)
         top.geometry(f"+{x}+{y}")
 
         tk.Label(top, text=prompt).pack(pady=5)
@@ -87,6 +108,7 @@ class PasswordManagerApp(tk.Tk):
         entry.pack(pady=5)
         entry.focus()
 
+        # Toggle show/hide password
         if is_password:
             def toggle_password():
                 if entry.cget("show") == "":
@@ -99,10 +121,45 @@ class PasswordManagerApp(tk.Tk):
             toggle_btn = tk.Button(top, text="הראה סיסמא", command=toggle_password)
             toggle_btn.pack()
 
+        # --- Strength checker עם scrollable Text ---
+        if show_strength and is_password:
+            strength_label = tk.Label(top, text="Strength: ", fg="gray")
+            strength_label.pack(pady=2)
+
+            missing_text = scrolledtext.ScrolledText(top, height=5, width=40, fg="red")
+            missing_text.pack(pady=2)
+            missing_text.config(state="disabled")
+
+            def update_strength(event=None):
+                pwd = entry_var.get()
+                ok, reasons = check_password_strength(pwd)
+                missing_text.config(state="normal")
+                missing_text.delete("1.0", tk.END)
+                if not pwd:
+                    strength_label.config(text="Strength: ", fg="gray")
+                    entry.config(bg="white")
+                elif ok:
+                    strength_label.config(text="Strength: Strong", fg="green")
+                    entry.config(bg="#d4edda")
+                else:
+                    strength_label.config(text="Strength: Weak", fg="red")
+                    missing_text.insert(tk.END, "\n".join("- "+r for r in reasons))
+                    entry.config(bg="#f8d7da")
+                missing_text.config(state="disabled")
+
+            entry.bind("<KeyRelease>", update_strength)
+
         result = {"value": None}
 
+        # --- OK/Cancel buttons ---
         def on_ok():
-            result["value"] = entry_var.get()
+            value = entry_var.get()
+            if show_strength and is_password:
+                ok, reasons = check_password_strength(value)
+                if not ok:
+                    messagebox.showwarning("Weak password", "Password is too weak:\n" + "\n".join(reasons))
+                    return  # לא סוגר את החלון
+            result["value"] = value
             top.destroy()
 
         def on_cancel():
@@ -127,12 +184,13 @@ class PasswordManagerApp(tk.Tk):
                     return
 
                 while True:
-                    master1 = self.ask_password("Create Vault", "Enter new master password:", is_password=True)
+                    master1 = self.ask_password("Create Vault", "Enter new master password:", is_password=True, show_strength=True)
                     if master1 is None:
                         self.destroy()
                         return
-                    if len(master1) < 8:
-                        messagebox.showwarning("Invalid", "Password must be at least 8 characters.")
+                    ok, _ = check_password_strength(master1)
+                    if not ok:
+                        messagebox.showwarning("Weak password", "Password is too weak, please follow the strength rules.")
                         continue
                     master2 = self.ask_password("Confirm Vault", "Confirm master password:", is_password=True)
                     if master1 != master2:
@@ -193,7 +251,7 @@ class PasswordManagerApp(tk.Tk):
         if pwd_option:
             password = generate_password(length=20)
         else:
-            password = self.ask_password("Add Service", "Password:", is_password=True)
+            password = self.ask_password("Add Service", "Password:", is_password=True, show_strength=True)
             if not password:
                 return
         notes = self.ask_password("Add Service", "Notes (optional):", is_password=False) or ""
@@ -241,13 +299,14 @@ class PasswordManagerApp(tk.Tk):
         if old != self.master_password:
             messagebox.showerror("Error", "Old password incorrect")
             return
-        new = self.ask_password("New Password", "Enter new master password:", is_password=True)
+        new = self.ask_password("New Password", "Enter new master password:", is_password=True, show_strength=True)
         confirm = self.ask_password("Confirm Password", "Confirm new master password:", is_password=True)
         if new != confirm:
             messagebox.showerror("Error", "New passwords do not match")
             return
-        if len(new) < 8:
-            messagebox.showerror("Error", "Password too short (min 8)")
+        ok, _ = check_password_strength(new)
+        if not ok:
+            messagebox.showerror("Error", "New password is too weak")
             return
         try:
             self.vault.change_master(old, new)
