@@ -1,6 +1,6 @@
 # Python Password Manager
 
-מנהל סיסמאות מאובטח עם **Vault מוצפן** (JSON), כולל CLI ו־GUI (Tkinter).
+מנהל סיסמאות מאובטח עם **Vault מוצפן** (JSON), כולל CLI ו‑GUI (Tkinter).
 
 ---
 
@@ -9,8 +9,23 @@
 - סיסמת מאסטר → מפתח חזק (PBKDF2-HMAC-SHA256)  
 - הצפנת AES-128-GCM (Fernet)  
 - Vault יחיד בקובץ JSON (מוצפן כולו)  
-- ממשק CLI ו־GUI (Tkinter)  
+- ממשק CLI ו‑GUI (Tkinter)  
 - העתקת סיסמאות ללוח (עם `pyperclip`)  
+- בדיקת חוזק סיסמה בזמן הקלדה (GUI)  
+
+---
+
+## בדיקת חוזק סיסמה
+
+היישום בודק אם סיסמה מכילה:  
+
+- מינימום 8 תווים  
+- אותיות קטנות  
+- אותיות גדולות  
+- ספרות  
+- תווים מיוחדים (`!@#$%^&*()-_=+[]{}|;:,.<>?/~``)  
+
+ב‑GUI, בעת הקלדת סיסמה, מוצג צבע רקע ירוק אם היא חזקה, אדום אם חלשה, ורשימת החוסרים מופיעה מתחת לשדה ההקלדה.
 
 ---
 
@@ -28,6 +43,17 @@
 | `import-csv` | ייבוא סיסמאות מקובץ CSV | `python password_manager.py import-csv --vault myvault.json --path passwords.csv` |
 | `export-csv` | ייצוא סיסמאות לקובץ CSV | `python password_manager.py export-csv --vault myvault.json --path backup.csv` |
 
+---
+
+## GUI – תכונות
+
+- רשימת שירותים עם פרטי שם משתמש וסיסמה  
+- כפתור "Add" להוספת שירות חדש  
+- כפתור "Delete" למחיקה  
+- כפתור "Change Master Password" לשינוי סיסמת מאסטר  
+- כפתור "Generate Password" ליצירת סיסמה חזקה  
+- הצגת פרטי שירות בפאנל נפרד עם אפשרות העתקה ללוח  
+- שדה סיסמה עם אפשרות להראות/להסתיר סיסמה  
 
 ---
 
