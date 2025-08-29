@@ -8,7 +8,9 @@ Vault חדש נוצר אוטומטית אם לא קיים.
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import pyperclip
-from password_manager import Vault, generate_password
+import secrets
+import string
+from password_manager import Vault  # הסרנו את generate_password – יש לנו מחולל מותאם כאן
 
 VAULT_FILE = "vault.json"
 
@@ -32,6 +34,39 @@ def check_password_strength(password):
         reasons.append("Missing special character")
     ok = len(reasons) == 0
     return ok, reasons
+
+
+# --- מחולל סיסמא מותאם אישית (קריפטוגרפי) ---
+SAFE_SYMBOLS = "!@#$%^&*()_-+=[]{}:;.,?/|~<>"
+
+def generate_custom_password(length=12, use_lower=True, use_upper=True, use_digits=True, use_symbols=True):
+    if length < 6:
+        raise ValueError("Minimum length is 6")
+    pools = []
+    alphabet = ""
+
+    if use_lower:
+        pools.append(string.ascii_lowercase)
+        alphabet += string.ascii_lowercase
+    if use_upper:
+        pools.append(string.ascii_uppercase)
+        alphabet += string.ascii_uppercase
+    if use_digits:
+        pools.append(string.digits)
+        alphabet += string.digits
+    if use_symbols:
+        pools.append(SAFE_SYMBOLS)
+        alphabet += SAFE_SYMBOLS
+
+    if not alphabet:
+        raise ValueError("חייב לבחור לפחות סוג תווים אחד!")
+
+    # הבטחת גיוון – לפחות תו אחד מכל קטגוריה שנבחרה
+    pwd_chars = [secrets.choice(pool) for pool in pools]
+    while len(pwd_chars) < length:
+        pwd_chars.append(secrets.choice(alphabet))
+    secrets.SystemRandom().shuffle(pwd_chars)
+    return "".join(pwd_chars[:length])
 
 
 class PasswordManagerApp(tk.Tk):
@@ -92,7 +127,7 @@ class PasswordManagerApp(tk.Tk):
             parent_y = self.winfo_y()
             parent_width = self.winfo_width()
             parent_height = self.winfo_height()
-        except:
+        except Exception:
             parent_x = parent_y = 0
             parent_width = self.winfo_screenwidth()
             parent_height = self.winfo_screenheight()
@@ -174,6 +209,106 @@ class PasswordManagerApp(tk.Tk):
         top.wait_window()
         return result["value"]
 
+    # --- דיאלוג גנרטור סיסמאות מותאם אישית (החזר סיסמה או None) ---
+    def open_password_generator(self, title="Password Generator"):
+        top = tk.Toplevel(self)
+        top.title(title)
+        top.geometry("380x360")
+        top.resizable(False, False)
+        top.grab_set()
+
+        # Center
+        top.update_idletasks()
+        try:
+            parent_x = self.winfo_x()
+            parent_y = self.winfo_y()
+            parent_w = self.winfo_width()
+            parent_h = self.winfo_height()
+        except Exception:
+            parent_x = parent_y = 0
+            parent_w = self.winfo_screenwidth()
+            parent_h = self.winfo_screenheight()
+        x = parent_x + (parent_w // 2) - (380 // 2)
+        y = parent_y + (parent_h // 2) - (360 // 2)
+        top.geometry(f"+{x}+{y}")
+
+        tk.Label(top, text="Customize Your Password", font=("Arial", 12, "bold")).pack(pady=8)
+
+        # Length
+        length_frame = tk.Frame(top)
+        length_frame.pack(fill="x", padx=16)
+        tk.Label(length_frame, text="Length:").pack(side="left")
+        length_var = tk.IntVar(value=16)
+        length_scale = tk.Scale(length_frame, from_=8, to=64, orient="horizontal", variable=length_var)
+        length_scale.pack(side="left", fill="x", expand=True, padx=8)
+
+        # Options
+        opts = tk.Frame(top)
+        opts.pack(fill="x", padx=16, pady=4)
+        use_lower = tk.BooleanVar(value=True)
+        use_upper = tk.BooleanVar(value=True)
+        use_digits = tk.BooleanVar(value=True)
+        use_symbols = tk.BooleanVar(value=True)
+        tk.Checkbutton(opts, text="Lowercase (a-z)", variable=use_lower).grid(row=0, column=0, sticky="w", pady=2)
+        tk.Checkbutton(opts, text="Uppercase (A-Z)", variable=use_upper).grid(row=1, column=0, sticky="w", pady=2)
+        tk.Checkbutton(opts, text="Digits (0-9)", variable=use_digits).grid(row=0, column=1, sticky="w", padx=16, pady=2)
+        tk.Checkbutton(opts, text="Symbols (!@#$…)", variable=use_symbols).grid(row=1, column=1, sticky="w", padx=16, pady=2)
+
+        # Preview
+        tk.Label(top, text="Preview:").pack(anchor="w", padx=16, pady=(8, 0))
+        preview_var = tk.StringVar(value="")
+        preview_entry = tk.Entry(top, textvariable=preview_var, font=("Consolas", 11))
+        preview_entry.pack(fill="x", padx=16, pady=6)
+
+        # Buttons
+        btns = tk.Frame(top)
+        btns.pack(pady=8)
+
+        def regenerate():
+            try:
+                pwd = generate_custom_password(
+                    length=length_var.get(),
+                    use_lower=use_lower.get(),
+                    use_upper=use_upper.get(),
+                    use_digits=use_digits.get(),
+                    use_symbols=use_symbols.get()
+                )
+                preview_var.set(pwd)
+            except ValueError as e:
+                messagebox.showerror("Error", str(e), parent=top)
+
+        def copy_to_clipboard():
+            txt = preview_var.get()
+            if not txt:
+                regenerate()
+                txt = preview_var.get()
+            if txt:
+                pyperclip.copy(txt)
+                messagebox.showinfo("Copied", "Password copied to clipboard.", parent=top)
+
+        result = {"value": None}
+
+        def use_and_close():
+            if not preview_var.get():
+                regenerate()
+            result["value"] = preview_var.get()
+            top.destroy()
+
+        def cancel():
+            result["value"] = None
+            top.destroy()
+
+        tk.Button(btns, text="Generate", command=regenerate, width=12).pack(side="left", padx=5)
+        tk.Button(btns, text="Copy", command=copy_to_clipboard, width=12).pack(side="left", padx=5)
+        tk.Button(btns, text="Use", command=use_and_close, width=12).pack(side="left", padx=5)
+        tk.Button(btns, text="Cancel", command=cancel, width=12).pack(side="left", padx=5)
+
+        # Auto-generate first preview
+        self.after(50, regenerate)
+
+        top.wait_window()
+        return result["value"]
+
     # --- Vault login or creation ---
     def login_or_create_vault(self):
         try:
@@ -247,13 +382,14 @@ class PasswordManagerApp(tk.Tk):
         username = self.ask_password("Add Service", "Username:", is_password=False)
         if username is None:
             return
-        pwd_option = messagebox.askyesno("Password", "Generate strong password automatically?")
-        if pwd_option:
-            password = generate_password(length=20)
-        else:
+
+        # קודם מציעים את מחולל הסיסמאות המותאם; אם בוטל – קליטה ידנית עם בדיקת חוזק
+        password = self.open_password_generator(title="Generate Password for New Entry")
+        if not password:
             password = self.ask_password("Add Service", "Password:", is_password=True, show_strength=True)
             if not password:
                 return
+
         notes = self.ask_password("Add Service", "Notes (optional):", is_password=False) or ""
         try:
             self.vault.set_entry(self.master_password, service, username, password, notes)
@@ -316,8 +452,11 @@ class PasswordManagerApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def show_generated_password(self):
-        pwd = generate_password(length=20)
-        messagebox.showinfo("Generated Password", pwd)
+        """כפתור הצד: פותח את מחולל הסיסמאות המותאם, מציג ומעתיק בלחיצה"""
+        pwd = self.open_password_generator(title="Password Generator")
+        if pwd:
+            pyperclip.copy(pwd)
+            messagebox.showinfo("Generated Password", f"Password copied to clipboard:\n\n{pwd}")
 
     def show_help(self):
         help_text = (
@@ -325,7 +464,7 @@ class PasswordManagerApp(tk.Tk):
             "1. 'Add' – הוספת אתר, שם משתמש וסיסמה.\n"
             "2. 'Delete' – מחיקה של סיסמה קיימת.\n"
             "3. 'Change Master Password' – שינוי סיסמת המאסטר.\n"
-            "4. 'Generate Password' – יצירת סיסמה חזקה אוטומטית.\n"
+            "4. 'Generate Password' – יצירת סיסמה חזקה מותאמת אישית.\n"
             "5. בחירה ברשימת השירותים משמאל – מציגה את הפרטים המלאים.\n"
             "6. 'Copy Password' – מעתיק את הסיסמה ללוח.\n\n"
             "📌 כל הסיסמאות נשמרות בצורה מוצפנת ומאובטחת."

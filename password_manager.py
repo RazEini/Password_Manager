@@ -34,7 +34,12 @@ Python Password Manager - CLI Tool
     python password_manager.py change-master --vault myvault.json
 
 7. יצירת סיסמה חזקה (בלי לשמור):
-    python password_manager.py generate --length 24
+    python password_manager.py generate --length 24  # עד 64 תווים
+    אפשרויות:
+      --no-lower   : לא לכלול אותיות קטנות
+      --no-upper   : לא לכלול אותיות גדולות
+      --no-digits  : לא לכלול ספרות
+      --no-symbols : לא לכלול תווים מיוחדים
 
 8. ייבוא סיסמאות מקובץ CSV:
     python password_manager.py import-csv --vault myvault.json --path passwords.csv
@@ -55,7 +60,6 @@ import getpass
 import json
 import os
 import sys
-import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
@@ -69,67 +73,43 @@ except Exception:
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet, InvalidToken
+import secrets
+import string
 
 # -------- Utilities --------
 
 ISO = "%Y-%m-%dT%H:%M:%SZ"
 
-
 def now_iso() -> str:
     return datetime.now(timezone.utc).strftime(ISO)
-
 
 def b64e(b: bytes) -> str:
     return base64.urlsafe_b64encode(b).decode("utf-8")
 
-
 def b64d(s: str) -> bytes:
     return base64.urlsafe_b64decode(s.encode("utf-8"))
-
 
 @dataclass
 class KDFParams:
     name: str = "PBKDF2HMAC"
-    iterations: int = 390_000  # modern, safe default
-    salt: str = ""            # urlsafe base64
+    iterations: int = 390_000
+    salt: str = ""
 
     @staticmethod
     def new(iterations: int = 390_000) -> "KDFParams":
         salt = os.urandom(16)
         return KDFParams(iterations=iterations, salt=b64e(salt))
 
-
 class VaultError(Exception):
     pass
 
-
 class Vault:
-    """Encrypted password vault stored as JSON.
-
-    On disk, the structure is:
-    {
-        "kdf": {"name": "PBKDF2HMAC", "iterations": 390000, "salt": "..."},
-        "vault": "<base64 ciphertext>"
-    }
-
-    The decrypted payload structure is:
-    {
-        "version": 1,
-        "created": "ISO8601",
-        "updated": "ISO8601",
-        "entries": {
-            "service": {"username": str, "password": str, "notes": str, "updated": "ISO8601"}
-        }
-    }
-    """
-
+    """Encrypted password vault stored as JSON."""
     def __init__(self, path: str):
         self.path = path
         self.kdf: Optional[KDFParams] = None
         self._ciphertext: Optional[bytes] = None
-        self._data: Optional[Dict[str, Any]] = None
 
-    # ---- File I/O ----
     def exists(self) -> bool:
         return os.path.exists(self.path)
 
@@ -150,7 +130,7 @@ class Vault:
             raise VaultError("Invalid vault: missing KDF params")
         self.kdf = KDFParams(name=kdf.get("name", "PBKDF2HMAC"),
                              iterations=int(kdf["iterations"]),
-                             salt=kdf["salt"]) 
+                             salt=kdf["salt"])
         self._ciphertext = b64d(blob.get("vault", ""))
         if not self._ciphertext:
             raise VaultError("Invalid vault: missing ciphertext")
@@ -166,7 +146,7 @@ class Vault:
             iterations=int(self.kdf.iterations),
         )
         key = kdf.derive(master_password.encode("utf-8"))
-        return base64.urlsafe_b64encode(key)  # Fernet expects urlsafe-64
+        return base64.urlsafe_b64encode(key)
 
     def _encrypt(self, key: bytes, payload: Dict[str, Any]) -> bytes:
         token = Fernet(key).encrypt(json.dumps(payload).encode("utf-8"))
@@ -237,46 +217,51 @@ class Vault:
 
     def change_master(self, old_password: str, new_password: str, iterations: Optional[int] = None):
         data = self._load_decrypted(old_password)
-        # Optionally refresh salt and/or iterations when changing master
         if iterations is None:
             iterations = self.kdf.iterations if self.kdf else 390_000
         self.kdf = KDFParams.new(iterations=iterations)
         self._save_encrypted(new_password, data)
 
-
 # -------- Password generator --------
-import secrets
-import string
 
 EXCLUDE_SIMILAR = {"l", "I", "1", "O", "0"}
 
-
-def generate_password(length: int = 20, allow_symbols: bool = True) -> str:
+def generate_password(length: int = 20,
+                      use_lower: bool = True,
+                      use_upper: bool = True,
+                      use_digits: bool = True,
+                      use_symbols: bool = True) -> str:
     if length < 8:
         raise ValueError("Minimum password length is 8")
-    alphabet = set(string.ascii_letters + string.digits)
-    if allow_symbols:
-        # Safe-ish symbol set (avoid quotes & backslashes to reduce escape issues)
-        alphabet.update("!@#$%^&*()_-+=[]{}:;.,?/|")
-    # Remove visually similar characters
-    alphabet.difference_update(EXCLUDE_SIMILAR)
-    alphabet = "".join(sorted(alphabet))
 
-    # Ensure diversity: at least one from each category
-    categories = [
-        [c for c in string.ascii_lowercase if c not in EXCLUDE_SIMILAR],
-        [c for c in string.ascii_uppercase if c not in EXCLUDE_SIMILAR],
-        [c for c in string.digits if c not in EXCLUDE_SIMILAR],
-    ]
-    if allow_symbols:
-        categories.append(list("!@#$%^&*()_-+=[]{}:;.,?/|"))
+    alphabet = ""
+    categories = []
+
+    if use_lower:
+        lower = [c for c in string.ascii_lowercase if c not in EXCLUDE_SIMILAR]
+        alphabet += "".join(lower)
+        categories.append(lower)
+    if use_upper:
+        upper = [c for c in string.ascii_uppercase if c not in EXCLUDE_SIMILAR]
+        alphabet += "".join(upper)
+        categories.append(upper)
+    if use_digits:
+        digits = [c for c in string.digits if c not in EXCLUDE_SIMILAR]
+        alphabet += "".join(digits)
+        categories.append(digits)
+    if use_symbols:
+        symbols = list("!@#$%^&*()_-+=[]{}:;.,?/|")
+        alphabet += "".join(symbols)
+        categories.append(symbols)
+
+    if not alphabet:
+        raise ValueError("You must allow at least one character set!")
 
     pwd_chars = [secrets.choice(cat) for cat in categories]
     while len(pwd_chars) < length:
         pwd_chars.append(secrets.choice(alphabet))
     secrets.SystemRandom().shuffle(pwd_chars)
     return "".join(pwd_chars[:length])
-
 
 # -------- CLI --------
 
@@ -292,14 +277,12 @@ def prompt_master(confirm: bool = False) -> str:
         sys.exit(2)
     return pw1
 
-
 def cmd_init(args):
     v = Vault(args.vault)
     master = prompt_master(confirm=True)
     iters = args.iterations
     v.init_new(master, iterations=iters)
     print(f"Initialized vault at {args.vault} with {iters} PBKDF2 iterations.")
-
 
 def cmd_list(args):
     v = Vault(args.vault)
@@ -310,7 +293,6 @@ def cmd_list(args):
             print(s)
     else:
         print("(no entries)")
-
 
 def cmd_get(args):
     v = Vault(args.vault)
@@ -325,13 +307,18 @@ def cmd_get(args):
     else:
         print(json.dumps(entry, indent=2))
 
-
 def cmd_add(args):
     v = Vault(args.vault)
     master = prompt_master()
     username = args.user or input("Username: ")
     if args.generate:
-        pwd = generate_password(length=args.length, allow_symbols=not args.no_symbols)
+        pwd = generate_password(
+            length=args.length,
+            use_lower=not args.no_lower,
+            use_upper=not args.no_upper,
+            use_digits=not args.no_digits,
+            use_symbols=not args.no_symbols,
+        )
         print(f"Generated password ({len(pwd)} chars)")
     else:
         pwd = getpass.getpass("Password: ")
@@ -342,13 +329,11 @@ def cmd_add(args):
     v.set_entry(master, args.service, username, pwd, notes)
     print(f"Saved entry: {args.service}")
 
-
 def cmd_delete(args):
     v = Vault(args.vault)
     master = prompt_master()
     v.delete_entry(master, args.service)
     print(f"Deleted entry: {args.service}")
-
 
 def cmd_change_master(args):
     v = Vault(args.vault)
@@ -364,11 +349,15 @@ def cmd_change_master(args):
     v.change_master(old, new, iterations=args.iterations)
     print("Master password changed and vault re-encrypted with fresh salt.")
 
-
 def cmd_generate(args):
-    pwd = generate_password(length=args.length, allow_symbols=not args.no_symbols)
+    pwd = generate_password(
+        length=args.length,
+        use_lower=not args.no_lower,
+        use_upper=not args.no_upper,
+        use_digits=not args.no_digits,
+        use_symbols=not args.no_symbols,
+    )
     print(pwd)
-
 
 def cmd_export_csv(args):
     import csv
@@ -383,12 +372,10 @@ def cmd_export_csv(args):
             w.writerow([svc, e.get("username", ""), e.get("password", ""), e.get("notes", "")])
     print(f"Exported {len(entries)} entries to {args.path}")
 
-
 def cmd_import_csv(args):
     import csv
     v = Vault(args.vault)
     master = prompt_master()
-    # load existing
     data = v._load_decrypted(master)
     entries = data.setdefault("entries", {})
     count = 0
@@ -408,7 +395,6 @@ def cmd_import_csv(args):
     data["updated"] = now_iso()
     v._save_encrypted(master, data)
     print(f"Imported/updated {count} entries from {args.path}")
-
 
 # -------- Argparse wiring --------
 
@@ -436,7 +422,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--notes", help="Optional notes")
     sp.add_argument("--generate", action="store_true", help="Generate a strong random password")
     sp.add_argument("--length", type=int, default=20, help="Length for generated password")
-    sp.add_argument("--no-symbols", action="store_true", help="Exclude symbols in generated password")
+    sp.add_argument("--no-lower", action="store_true", help="Exclude lowercase letters")
+    sp.add_argument("--no-upper", action="store_true", help="Exclude uppercase letters")
+    sp.add_argument("--no-digits", action="store_true", help="Exclude digits")
+    sp.add_argument("--no-symbols", action="store_true", help="Exclude symbols")
     sp.set_defaults(func=cmd_add)
 
     sp = sub.add_parser("delete", help="Delete an entry")
@@ -449,7 +438,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("generate", help="Generate a strong password and print it")
     sp.add_argument("--length", type=int, default=20)
-    sp.add_argument("--no-symbols", action="store_true")
+    sp.add_argument("--no-lower", action="store_true", help="Exclude lowercase letters")
+    sp.add_argument("--no-upper", action="store_true", help="Exclude uppercase letters")
+    sp.add_argument("--no-digits", action="store_true", help="Exclude digits")
+    sp.add_argument("--no-symbols", action="store_true", help="Exclude symbols")
     sp.set_defaults(func=cmd_generate)
 
     sp = sub.add_parser("export-csv", help="Export all entries to CSV (plaintext)")
@@ -462,7 +454,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     return p
 
-
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -474,7 +465,6 @@ def main(argv=None):
     except KeyboardInterrupt:
         print("\nAborted.")
         sys.exit(130)
-
 
 if __name__ == "__main__":
     main()
