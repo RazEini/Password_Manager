@@ -56,7 +56,7 @@
       <tr><td>list</td><td>הצגת כל השירותים</td><td><code>python password_manager.py list --vault myvault.json</code></td></tr>
       <tr><td>delete</td><td>מחיקת שירות וסיסמה</td><td><code>python password_manager.py delete --vault myvault.json --service gmail</code></td></tr>
       <tr><td>change-master</td><td>שינוי סיסמת מאסטר</td><td><code>python password_manager.py change-master --vault myvault.json</code></td></tr>
-      <tr><td>generate</td><td>יצירת סיסמה חזקה</td><td><code>python password_manager.py generate --length 24</code></td></tr>
+      <tr><td>generate</td><td>יצירת סיסמה חזקה (8–64 תווים)</td><td><code>python password_manager.py generate --length 24</code></td></tr>
       <tr><td>import-csv</td><td>ייבוא סיסמאות מקובץ CSV</td><td><code>python password_manager.py import-csv --vault myvault.json --path passwords.csv</code></td></tr>
       <tr><td>export-csv</td><td>ייצוא סיסמאות לקובץ CSV</td><td><code>python password_manager.py export-csv --vault myvault.json --path backup.csv</code></td></tr>
     </tbody>
