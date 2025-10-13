@@ -13,6 +13,27 @@
     <img src="https://img.shields.io/badge/License-MIT-blue" alt="License Badge">
   </p>
 
+  <br/>
+
+  <h2 align="right">🎬 Demo / המחשה</h2>
+
+  <br/>
+
+  <table>
+  <tr>
+    <td align="center">
+      <img src="assets/password_manager_image2.PNG" width="350" alt="מסך יצירת סיסמא לכספת" />
+      <br><b>מסך יצירת סיסמא לכספת</b>
+    </td>
+    <td align="center">
+      <img src="assets/password_manager_image1.PNG" width="350" alt="מסך כספת הסיסמאות" />
+      <br><b>מסך כספת הסיסמאות</b>
+    </td>
+  </tr>
+</table>
+
+<br/>
+
   <hr>
 
   <h2>🚀 תכונות</h2>
