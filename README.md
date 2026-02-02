@@ -62,8 +62,10 @@
 
   <hr>
 
+  <br>
   <h2 align="center">💻 CLI – פקודות עיקריות</h2>
-  <table>
+  <br>
+  <table align="center" dir="rtl">
     <thead>
       <tr>
         <th>פקודה</th>
@@ -86,7 +88,8 @@
 
   <hr>
 
-  <h align="center">🖥️ GUI – תכונות</h2>
+  <h2 align="center">🖥️ GUI – תכונות</h2>
+  <br>
   <ul>
     <li>רשימת שירותים עם פרטי שם משתמש וסיסמה</li>
     <li>כפתור "Add" להוספת שירות חדש</li>
