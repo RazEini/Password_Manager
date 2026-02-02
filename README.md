@@ -1,12 +1,13 @@
 <div dir="rtl">
 
-  <h1>🔐 Python Password Manager</h1>
+  <h1 align="center">🔐 Python Password Manager</h1>
 
-  <p>
+  <p align="center">
     מנהל סיסמאות מאובטח עם <strong>Vault מוצפן</strong> (JSON), כולל CLI ו‑GUI (Tkinter).
   </p>
 
-  <p align="right">
+  <br>
+  <p align="center">
     <img src="https://img.shields.io/badge/Python-100%25-blue?logo=python" alt="Python Badge">
     <img src="https://img.shields.io/badge/CLI-GUI-lightgrey" alt="CLI/GUI Badge">
     <img src="https://img.shields.io/badge/Encryption-AES-red" alt="Encryption Badge">
@@ -15,11 +16,11 @@
 
   <br/>
 
-  <h2 align="right">🎬 Demo / המחשה</h2>
+  <h2 align="center">🎬 Demo / המחשה</h2>
 
   <br/>
 
-  <table>
+  <table align="center">
   <tr>
     <td align="center">
       <img src="assets/password_manager_image2.PNG" width="350" alt="מסך יצירת סיסמא לכספת" />
@@ -61,7 +62,7 @@
 
   <hr>
 
-  <h2>💻 CLI – פקודות עיקריות</h2>
+  <h2 align="center">💻 CLI – פקודות עיקריות</h2>
   <table>
     <thead>
       <tr>
@@ -85,7 +86,7 @@
 
   <hr>
 
-  <h2>🖥️ GUI – תכונות</h2>
+  <h align="center">🖥️ GUI – תכונות</h2>
   <ul>
     <li>רשימת שירותים עם פרטי שם משתמש וסיסמה</li>
     <li>כפתור "Add" להוספת שירות חדש</li>
@@ -106,6 +107,6 @@
 
   <hr>
 
-  <p><strong>👨‍💻 Raz Eini (2025)</strong></p>
+  <p align="center"><strong>👨‍💻 Raz Eini (2025)</strong></p>
 
 </div>
