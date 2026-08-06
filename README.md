@@ -63,7 +63,9 @@ pytest
 
 ---
 
-## 💻 CLI – פקודות עיקריות (`passmgr`)
+<h2 align="center">
+  💻 CLI – פקודות עיקריות (`passmgr`)
+</h2>
 
 <div align="center">
 
