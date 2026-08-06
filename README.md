@@ -1,81 +1,80 @@
-<div dir="rtl">
-  <h1 align="center">🔐 Python Password Manager</h1>
- 
-  <p align="center">
-    מנהל סיסמאות מאובטח עם <strong>Vault מוצפן</strong> (JSON), כולל CLI ו‑GUI (Tkinter).
-  </p>
-  <br>
-  <p align="center">
-    <img src="https://img.shields.io/badge/Python-100%25-blue?logo=python" alt="Python Badge">
-    <img src="https://img.shields.io/badge/CLI-GUI-lightgrey" alt="CLI/GUI Badge">
-    <img src="https://img.shields.io/badge/Encryption-AES-red" alt="Encryption Badge">
-    <img src="https://img.shields.io/badge/License-MIT-blue" alt="License Badge">
-  </p>
-  <br/>
-  <hr>
-  <h2>🚀 תכונות</h2>
-  <ul>
-    <li>סיסמת מאסטר → מפתח חזק (PBKDF2-HMAC-SHA256)</li>
-    <li>הצפנת AES-128-GCM (Fernet)</li>
-    <li>Vault יחיד בקובץ JSON (מוצפן כולו)</li>
-    <li>ממשק CLI ו‑GUI (Tkinter)</li>
-    <li>העתקת סיסמאות ללוח (עם <code>pyperclip</code>)</li>
-    <li>בדיקת חוזק סיסמה בזמן הקלדה (GUI)</li>
-  </ul>
-  <hr>
-  <h2>💪 בדיקת חוזק סיסמה</h2>
-  <p>היישום בודק אם סיסמה מכילה:</p>
-  <ul>
-    <li>מינימום 8 תווים</li>
-    <li>אותיות קטנות</li>
-    <li>אותיות גדולות</li>
-    <li>ספרות</li>
-    <li>תווים מיוחדים (<code>!@#$%^&*()-_=+[]{}|;:,.&lt;&gt;?/~`</code>)</li>
-  </ul>
-  <p>ב‑GUI, בעת הקלדת סיסמה, מוצג צבע רקע ירוק אם היא חזקה, אדום אם חלשה, ורשימת החוסרים מופיעה מתחת לשדה ההקלדה.</p>
-  <hr>
-  <br>
-  <h2 align="center">💻 CLI – פקודות עיקריות</h2>
-  <br>
-  <table align="center" dir="rtl">
-    <thead>
-      <tr>
-        <th>פקודה</th>
-        <th>תיאור</th>
-        <th>דוגמה</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>init</td><td>יצירת Vault חדש</td><td><code>python password_manager.py init --vault myvault.json</code></td></tr>
-      <tr><td>add</td><td>הוספה או עדכון סיסמה</td><td><code>python password_manager.py add --vault myvault.json --service gmail --user raz</code></td></tr>
-      <tr><td>get</td><td>קבלת סיסמה</td><td><code>python password_manager.py get --vault myvault.json --service gmail --copy</code></td></tr>
-      <tr><td>list</td><td>הצגת כל השירותים</td><td><code>python password_manager.py list --vault myvault.json</code></td></tr>
-      <tr><td>delete</td><td>מחיקת שירות וסיסמה</td><td><code>python password_manager.py delete --vault myvault.json --service gmail</code></td></tr>
-      <tr><td>change-master</td><td>שינוי סיסמת מאסטר</td><td><code>python password_manager.py change-master --vault myvault.json</code></td></tr>
-      <tr><td>generate</td><td>יצירת סיסמה חזקה (8–64 תווים)</td><td><code>python password_manager.py generate --length 24</code></td></tr>
-      <tr><td>import-csv</td><td>ייבוא סיסמאות מקובץ CSV</td><td><code>python password_manager.py import-csv --vault myvault.json --path passwords.csv</code></td></tr>
-      <tr><td>export-csv</td><td>ייצוא סיסמאות לקובץ CSV</td><td><code>python password_manager.py export-csv --vault myvault.json --path backup.csv</code></td></tr>
-    </tbody>
-  </table>
-  <hr>
-  <h2 align="center">🖥️ GUI – תכונות</h2>
-  <br>
-  <ul>
-    <li>רשימת שירותים עם פרטי שם משתמש וסיסמה</li>
-    <li>כפתור "Add" להוספת שירות חדש</li>
-    <li>כפתור "Delete" למחיקה</li>
-    <li>כפתור "Change Master Password" לשינוי סיסמת מאסטר</li>
-    <li>כפתור "Generate Password" ליצירת סיסמה חזקה</li>
-    <li>הצגת פרטי שירות בפאנל נפרד עם אפשרות העתקה ללוח</li>
-    <li>שדה סיסמה עם אפשרות להראות/להסתיר סיסמה</li>
-  </ul>
-  <hr>
-  <h2>📄 רישיון</h2>
-  <p>
-    הפרויקט מופץ תחת רישיון <strong>MIT</strong> – חופשי לשימוש, שינוי והפצה, כל עוד נשמר קרדיט למחבר.
-  </p>
-  <p>למידע נוסף ראה את קובץ <a href="LICENSE">LICENSE</a></p>
-  <hr>
-  <p align="center"><strong>👨‍💻 Raz Eini (2025)</strong></p>
-</div>
- 
+# 🔐 Python Password Manager
+
+מנהל סיסמאות מודולרי, מאובטח וקל לשימוש הכולל ממשק CLI מקצועי, כיסוי בדיקות (Tests) מלא ו-CI/CD.
+
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
+![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
+![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
+![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange)
+![License](https://img.shields.io/badge/License-MIT-blue)
+
+---
+
+## 🎬 Demo / המחשה
+
+| מסך יצירת סיסמא לכספת | מסך כספת הסיסמאות |
+| :---: | :---: |
+| ![מסך יצירת סיסמא](assets/password_manager_image2.PNG) | ![מסך כספת](assets/password_manager_image1.PNG) |
+
+---
+
+## 🚀 תכונות עיקריות
+
+* **ארכיטקטורה מודולרית:** הפרדה מלאה בין לוגיקה קריפטוגרפית (`core`) לבין ממשקי המשתמש (`cli` / `gui`).
+* **אבטחה חזקה:** גזירת מפתחות באמצעות PBKDF2-HMAC-SHA256 (עם 390,000 איטרציות ברירת מחדל) והצפנת AES-128-GCM (Fernet).
+* **אחסון מוצפן מקומית:** הכספת (Vault) נשמרת בקובץ מוצפן יחיד (`vault.json`).
+* **CLI Shortcut ייעודי:** הרצת הפקודה `passmgr` ישירות מהטרמינל.
+* **אינטגרציה ללוח (Clipboard):** העתקת סיסמאות מהירה בלחיצת כפתור או דרך דגל ב-CLI (עם `pyperclip`).
+* **בדיקות ו-CI/CD:** כיסוי בדיקות יחידה ב-`pytest` והרצה אוטומטית דרך GitHub Actions.
+
+---
+
+## 📦 התקנה והרצה
+
+1. **שכפול הרפוזיטורי:**
+   ```bash
+   git clone https://github.com/your-username/password_manager.git
+   cd password_manager
+   ```
+
+2. **התקנת החבילה במצב פיתוח (Editable mode):**
+   ```bash
+   pip install -e .
+   ```
+
+3. **הרצת בדיקות יחידה (Unit Tests):**
+   ```bash
+   pytest
+   ```
+
+---
+
+## 💻 CLI – פקודות עיקריות (`passmgr`)
+
+| פקודה | תיאור | דוגמה |
+| :--- | :--- | :--- |
+| `init` | יצירת Vault מוצפן חדש | `passmgr init --vault myvault.json` |
+| `add` | הוספה או עדכון של סיסמה לשירות | `passmgr add --service github --user myusername` |
+| `get` | שליפת סיסמה (ואפשרות העתקה ללוח) | `passmgr get --service github --copy` |
+| `list` | הצגת כל השירותים הקיימים בכספת | `passmgr list` |
+| `delete` | מחיקת רשומה מהכספת | `passmgr delete --service github` |
+| `change-master` | שינוי סיסמת מאסטר והצפנה מחדש | `passmgr change-master` |
+| `generate` | יצירת סיסמה אקראית וחזקה | `passmgr generate --length 20` |
+| `export-csv` | ייצוא סיסמאות לקובץ CSV | `passmgr export-csv --path backup.csv` |
+| `import-csv` | ייבוא סיסמאות מקובץ CSV | `passmgr import-csv --path backup.csv` |
+
+---
+
+## 🛡️ אבטחה וגזירת מפתחות
+
+היישום אינו שומר את סיסמת המאסטר בדיסק באף שלב. המפתח הקריפטוגרפי נגזר בזמן אמת מתוך סיסמת המאסטר וה-Salt הדינמי המאוחסן בקובץ ה-Vault.
+
+---
+
+## 📄 רישיון
+
+הפרויקט מופץ תחת רישיון **MIT** – חופשי לשימוש, שינוי והפצה. למידע נוסף ראה את קובץ [LICENSE](LICENSE).
+
+---
+
+**👨‍💻 Raz Eini**
