@@ -35,8 +35,8 @@
 </div>
 
 ```bash
-git clone [https://github.com/your-username/password_manager.git](https://github.com/your-username/password_manager.git)
-cd password_manager
+git clone [https://github.com/RazEini/Password_Manager.git](https://github.com/RazEini/Password_Manager.git)
+cd Password_Manager
 ```
 
 <div align="right" dir="rtl">
