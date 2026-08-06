@@ -9,8 +9,8 @@
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
 ![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
-![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange)
-![License](https://img.shields.io/badge/License-MIT-blue) <br><br>
+![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange) <br><br>
+![License](https://img.shields.io/badge/License-MIT-blue)
 ![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
 
 </div>
