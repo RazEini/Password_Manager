@@ -1,3 +1,7 @@
+<div align="right" dir="rtl">
+
+<div align="center">
+
 # 🔐 Python Password Manager
 
 מנהל סיסמאות מודולרי, מאובטח וקל לשימוש הכולל ממשק CLI מקצועי, כיסוי בדיקות (Tests) מלא ו-CI/CD.
@@ -7,6 +11,9 @@
 ![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
 ![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange)
 ![License](https://img.shields.io/badge/License-MIT-blue)
+![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
+
+</div>
 
 ---
 
@@ -23,28 +30,43 @@
 
 ## 📦 התקנה והרצה
 
-1. **שכפול הרפוזיטורי:**
-   ```bash
-   git clone https://github.com/your-username/password_manager.git
-   cd password_manager
-   ```
+**1. שכפול הרפוזיטורי:**
 
-2. **התקנת החבילה במצב פיתוח (Editable mode):**
-   ```bash
-   pip install -e .
-   ```
+</div>
 
-3. **הרצת בדיקות יחידה (Unit Tests):**
-   ```bash
-   pytest
-   ```
+```bash
+git clone https://github.com/your-username/password_manager.git
+cd password_manager
+```
+
+<div align="right" dir="rtl">
+
+**2. התקנת החבילה במצב פיתוח (Editable mode):**
+
+</div>
+
+```bash
+pip install -e .
+```
+
+<div align="right" dir="rtl">
+
+**3. הרצת בדיקות יחידה (Unit Tests):**
+
+</div>
+
+```bash
+pytest
+```
+
+<div align="right" dir="rtl">
 
 ---
 
 ## 💻 CLI – פקודות עיקריות (`passmgr`)
 
 | פקודה | תיאור | דוגמה |
-| :--- | :--- | :--- |
+| ---: | ---: | :--- |
 | `init` | יצירת Vault מוצפן חדש | `passmgr init --vault myvault.json` |
 | `add` | הוספה או עדכון של סיסמה לשירות | `passmgr add --service github --user myusername` |
 | `get` | שליפת סיסמה (ואפשרות העתקה ללוח) | `passmgr get --service github --copy` |
@@ -69,4 +91,8 @@
 
 ---
 
-**👨‍💻 Raz Eini**
+<h4 align="center">
+   👨‍💻 Raz Eini (2026)
+</h4>
+
+</div>
