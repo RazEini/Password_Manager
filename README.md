@@ -10,7 +10,7 @@
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
 ![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
 ![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange)
-![License](https://img.shields.io/badge/License-MIT-blue)
+![License](https://img.shields.io/badge/License-MIT-blue) <br><br>
 ![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
 
 </div>
