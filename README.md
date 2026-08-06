@@ -35,7 +35,7 @@
 </div>
 
 ```bash
-git clone https://github.com/your-username/password_manager.git
+git clone [https://github.com/your-username/password_manager.git](https://github.com/your-username/password_manager.git)
 cd password_manager
 ```
 
@@ -65,17 +65,66 @@ pytest
 
 ## 💻 CLI – פקודות עיקריות (`passmgr`)
 
-| פקודה | תיאור | דוגמה |
-| ---: | ---: | :--- |
-| `init` | יצירת Vault מוצפן חדש | `passmgr init --vault myvault.json` |
-| `add` | הוספה או עדכון של סיסמה לשירות | `passmgr add --service github --user myusername` |
-| `get` | שליפת סיסמה (ואפשרות העתקה ללוח) | `passmgr get --service github --copy` |
-| `list` | הצגת כל השירותים הקיימים בכספת | `passmgr list` |
-| `delete` | מחיקת רשומה מהכספת | `passmgr delete --service github` |
-| `change-master` | שינוי סיסמת מאסטר והצפנה מחדש | `passmgr change-master` |
-| `generate` | יצירת סיסמה אקראית וחזקה | `passmgr generate --length 20` |
-| `export-csv` | ייצוא סיסמאות לקובץ CSV | `passmgr export-csv --path backup.csv` |
-| `import-csv` | ייבוא סיסמאות מקובץ CSV | `passmgr import-csv --path backup.csv` |
+<div align="center">
+
+<table align="center">
+  <thead>
+    <tr>
+      <th align="center">פקודה</th>
+      <th align="center">תיאור</th>
+      <th align="center">דוגמה</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><code>init</code></td>
+      <td align="center">יצירת Vault מוצפן חדש</td>
+      <td align="left"><code>passmgr init --vault myvault.json</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>add</code></td>
+      <td align="center">הוספה או עדכון של סיסמה לשירות</td>
+      <td align="left"><code>passmgr add --service github --user myusername</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>get</code></td>
+      <td align="center">שליפת סיסמה (ואפשרות העתקה ללוח)</td>
+      <td align="left"><code>passmgr get --service github --copy</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>list</code></td>
+      <td align="center">הצגת כל השירותים הקיימים בכספת</td>
+      <td align="left"><code>passmgr list</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>delete</code></td>
+      <td align="center">מחיקת רשומה מהכספת</td>
+      <td align="left"><code>passmgr delete --service github</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>change-master</code></td>
+      <td align="center">שינוי סיסמת מאסטר והצפנה מחדש</td>
+      <td align="left"><code>passmgr change-master</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>generate</code></td>
+      <td align="center">יצירת סיסמה אקראית וחזקה</td>
+      <td align="left"><code>passmgr generate --length 20</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>export-csv</code></td>
+      <td align="center">ייצוא סיסמאות לקובץ CSV</td>
+      <td align="left"><code>passmgr export-csv --path backup.csv</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>import-csv</code></td>
+      <td align="center">ייבוא סיסמאות מקובץ CSV</td>
+      <td align="left"><code>passmgr import-csv --path backup.csv</code></td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
 
 ---
 
@@ -92,7 +141,7 @@ pytest
 ---
 
 <h4 align="center">
-   👨‍💻 Raz Eini (2026)
+  👨‍💻 Raz Eini (2026)
 </h4>
 
 </div>
