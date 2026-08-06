@@ -81,7 +81,7 @@ pytest
     <tr>
       <td align="center"><code>init</code></td>
       <td align="center">יצירת Vault מוצפן חדש</td>
-      <td align="left"><code>passmgr init --vault myvault.json</code></td>
+      <td align="left"><code>passmgr --vault myvault.json init</code></td>
     </tr>
     <tr>
       <td align="center"><code>add</code></td>
