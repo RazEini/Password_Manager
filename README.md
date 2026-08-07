@@ -4,10 +4,11 @@
 
 # 🔐 Python Password Manager
 
-מנהל סיסמאות מודולרי, מאובטח וקל לשימוש הכולל ממשק CLI מקצועי, כיסוי בדיקות (Tests) מלא ו-CI/CD.
+מנהל סיסמאות מודולרי, מאובטח וקל לשימוש הכולל ממשק CLI מקצועי, **תפריט אינטראקטיבי (TUI)** עם ניווט בחצים, כיסוי בדיקות (Tests) מלא ו-CI/CD.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
+![TUI](https://img.shields.io/badge/TUI-Interactive-purple?logo=windowsterminal)
 ![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
 ![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange) <br><br>
 ![License](https://img.shields.io/badge/License-MIT-blue)
@@ -20,9 +21,10 @@
 ## 🚀 תכונות עיקריות
 
 * **ארכיטקטורה מודולרית:** הפרדה מלאה בין לוגיקה קריפטוגרפית (`core`) לבין ממשק ה-CLI והאחסון.
+* **תפריט אינטראקטיבי (TUI):** הרצת `passmgr` ללא ארגומנטים פותחת תפריט ניווט בחצים מבוסס `questionary` ו-`rich`, עם אפשרויות List / Get / Add / Delete / Generate ישירות מהתפריט.
 * **אבטחה חזקה:** גזירת מפתחות באמצעות PBKDF2-HMAC-SHA256 (עם 390,000 איטרציות ברירת מחדל) והצפנת AES-128-GCM (Fernet).
 * **אחסון מוצפן מקומית:** הכספת (Vault) נשמרת בקובץ מוצפן יחיד (`vault.json`).
-* **CLI Shortcut ייעודי:** הרצת הפקודה `passmgr` ישירות מהטרמינל.
+* **CLI Shortcut ייעודי:** הרצת הפקודה `passmgr` ישירות מהטרמינל, עם או בלי תת-פקודות.
 * **אינטגרציה ללוח (Clipboard):** העתקת סיסמאות מהירה בלחיצת כפתור או דרך דגל ב-CLI (עם `pyperclip`).
 * **בדיקות ו-CI/CD:** כיסוי בדיקות יחידה ב-`pytest` והרצה אוטומטית דרך GitHub Actions.
 
@@ -35,7 +37,7 @@
 </div>
 
 ```bash
-git clone [https://github.com/RazEini/Password_Manager.git](https://github.com/RazEini/Password_Manager.git)
+git clone https://github.com/RazEini/Password_Manager.git
 cd Password_Manager
 ```
 
@@ -51,7 +53,19 @@ pip install -e .
 
 <div align="right" dir="rtl">
 
-**3. הרצת בדיקות יחידה (Unit Tests):**
+**3. (אופציונלי אך מומלץ) התקנת תלויות התפריט האינטראקטיבי:**
+
+התפריט האינטראקטיבי (`rich` + `questionary`) הוא תלות אופציונלית — אם הן לא מותקנות, ה-CLI הרגיל (עם תת-הפקודות) ימשיך לעבוד כרגיל, אך הרצת `passmgr` ללא ארגומנטים תדפיס הודעת שגיאה ותבקש להתקין אותן.
+
+</div>
+
+```bash
+pip install rich questionary
+```
+
+<div align="right" dir="rtl">
+
+**4. הרצת בדיקות יחידה (Unit Tests):**
 
 </div>
 
@@ -60,6 +74,40 @@ pytest
 ```
 
 <div align="right" dir="rtl">
+
+---
+
+<h2 align="center">
+  🖥️ מצב אינטראקטיבי (TUI)
+</h2>
+
+<div align="center">
+
+הרצת הפקודה `passmgr` **ללא** תת-פקודה פותחת תפריט אינטראקטיבי מלא (דורש `rich` ו-`questionary`):
+
+</div>
+
+```bash
+passmgr
+# או עם קובץ כספת ספציפי:
+passmgr --vault myvault.json
+```
+
+<div align="right" dir="rtl">
+
+התפריט מזהה אוטומטית אם הכספת קיימת:
+
+* אם **לא קיימת** — יציע ליצור כספת חדשה עם סיסמת מאסטר.
+* אם **קיימת** — יבקש את סיסמת המאסטר לפתיחה.
+
+לאחר הפתיחה מוצג תפריט ניווט בחצים עם האפשרויות:
+
+* 📜 List All Services
+* 🔑 Get Entry (View/Copy Password)
+* ➕ Add / Update Entry
+* 🗑️ Delete Entry
+* 🎲 Generate Random Password
+* 🚪 Lock & Exit
 
 ---
 
@@ -78,6 +126,11 @@ pytest
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><code>(ללא פקודה)</code></td>
+      <td align="center">פתיחת תפריט אינטראקטיבי (TUI)</td>
+      <td align="left"><code>passmgr</code></td>
+    </tr>
     <tr>
       <td align="center"><code>init</code></td>
       <td align="center">יצירת Vault מוצפן חדש</td>
@@ -132,7 +185,7 @@ pytest
 
 ## 🛡️ אבטחה וגזירת מפתחות
 
-היישום אינו שומר את סיסמת המאסטר בדיסק באף שלב. המפתח הקריפטוגרפי נגזר בזמן אמת מתוך סיסמת המאסטר וה-Salt הדינמי המאוחסן בקובץ ה-Vault.
+היישום אינו שומר את סיסמת המאסטר בדיסק באף שלב. המפתח הקריפטוגרפי נגזר בזמן אמת מתוך סיסמת המאסטר וה-Salt הדינמי המאוחסן בקובץ ה-Vault. גם במצב האינטראקטיבי, הזנת הסיסמאות נעשית באמצעות `questionary.password`, שמסתיר את התווים בזמן ההקלדה בדיוק כמו `getpass` במצב ה-CLI הרגיל.
 
 ---
 
