@@ -222,20 +222,20 @@ def run_interactive_tui(vault_path: str):
         choice = questionary.select(
             "Select an action:",
             choices=[
-                "📜 List All Services",
-                "🔑 Get Entry (View/Copy Password)",
-                "➕ Add / Update Entry",
-                "🗑️ Delete Entry",
-                "🎲 Generate Random Password",
-                "🚪 Lock & Exit"
+                "List All Services",
+                "Get Entry (View/Copy Password)",
+                "Add / Update Entry",
+                "Delete Entry",
+                "Generate Random Password",
+                "Lock & Exit"
             ]
         ).ask()
 
-        if choice is None or choice == "🚪 Lock & Exit":
+        if choice is None or choice == "Lock & Exit":
             console.print("[bold red]🔒 Vault locked. Goodbye![/bold red]")
             break
 
-        elif choice == "📜 List All Services":
+        elif choice == "List All Services":
             svcs = v.list_services(master)
             if not svcs:
                 console.print("[yellow]Vault is currently empty.[/yellow]")
@@ -248,7 +248,7 @@ def run_interactive_tui(vault_path: str):
                 console.print(table)
             questionary.press_any_key_to_continue().ask()
 
-        elif choice == "🔑 Get Entry (View/Copy Password)":
+        elif choice == "Get Entry (View/Copy Password)":
             svc = questionary.text("Service Name:").ask()
             if svc:
                 try:
@@ -266,7 +266,7 @@ def run_interactive_tui(vault_path: str):
                     console.print(f"[bold red]Error: {e}[/bold red]")
             questionary.press_any_key_to_continue().ask()
 
-        elif choice == "➕ Add / Update Entry":
+        elif choice == "Add / Update Entry":
             svc = questionary.text("Service Name:").ask()
             if svc:
                 usr = questionary.text("Username:").ask() or ""
@@ -282,7 +282,7 @@ def run_interactive_tui(vault_path: str):
                 console.print(f"[bold green]✔ Entry for '{svc}' saved successfully![/bold green]")
             questionary.press_any_key_to_continue().ask()
 
-        elif choice == "🗑️ Delete Entry":
+        elif choice == "Delete Entry":
             svc = questionary.text("Service Name to delete:").ask()
             if svc:
                 if questionary.confirm(f"Are you sure you want to delete '{svc}'?").ask():
@@ -293,7 +293,7 @@ def run_interactive_tui(vault_path: str):
                         console.print(f"[bold red]Error: {e}[/bold red]")
             questionary.press_any_key_to_continue().ask()
 
-        elif choice == "🎲 Generate Random Password":
+        elif choice == "Generate Random Password":
             length = questionary.text("Password length:", default="20").ask()
             try:
                 l_int = int(length)
