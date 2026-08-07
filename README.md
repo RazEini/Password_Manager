@@ -87,6 +87,8 @@ pytest
 
 </div>
 
+</div>
+
 ```bash
 passmgr
 # או עם קובץ כספת ספציפי:
@@ -102,12 +104,48 @@ passmgr --vault myvault.json
 
 לאחר הפתיחה מוצג תפריט ניווט בחצים עם האפשרויות:
 
-* 📜 List All Services
-* 🔑 Get Entry (View/Copy Password)
-* ➕ Add / Update Entry
-* 🗑️ Delete Entry
-* 🎲 Generate Random Password
-* 🚪 Lock & Exit
+</div>
+
+<div align="center">
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">אפשרות בתפריט</th>
+      <th align="center">תיאור</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">List All Services</td>
+      <td align="center">הצגת כל השירותים השמורים בכספת</td>
+    </tr>
+    <tr>
+      <td align="center">Get Entry</td>
+      <td align="center">צפייה בפרטי רשומה, כולל אפשרות להעתיק סיסמה ללוח</td>
+    </tr>
+    <tr>
+      <td align="center">Add / Update Entry</td>
+      <td align="center">הוספת רשומה חדשה או עדכון קיימת, עם אפשרות ליצירת סיסמה אקראית</td>
+    </tr>
+    <tr>
+      <td align="center">Delete Entry</td>
+      <td align="center">מחיקת רשומה מהכספת לאחר אישור</td>
+    </tr>
+    <tr>
+      <td align="center">Generate Random Password</td>
+      <td align="center">יצירת סיסמה אקראית בלבד, ללא שמירה בכספת</td>
+    </tr>
+    <tr>
+      <td align="center">Lock &amp; Exit</td>
+      <td align="center">נעילת הכספת ויציאה מהתפריט</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+<div align="right" dir="rtl">
 
 ---
 
