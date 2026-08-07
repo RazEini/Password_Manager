@@ -8,6 +8,8 @@ version = "0.1.0"
 dependencies = [
     "cryptography>=41.0.0",
     "pyperclip>=1.8.2",
+    "rich",
+    "questionary",
 ]
 
 [project.scripts]
