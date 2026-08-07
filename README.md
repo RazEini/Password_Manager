@@ -1,115 +1,149 @@
-<div dir="rtl">
+<div align="right" dir="rtl">
 
-  <h1 align="center">🔐 Python Password Manager</h1>
+<div align="center">
 
-  <p align="center">
-    מנהל סיסמאות מאובטח עם <strong>Vault מוצפן</strong> (JSON), כולל CLI ו‑GUI (Tkinter).
-  </p>
+# 🔐 Python Password Manager
 
-  <br>
-  <p align="center">
-    <img src="https://img.shields.io/badge/Python-100%25-blue?logo=python" alt="Python Badge">
-    <img src="https://img.shields.io/badge/CLI-GUI-lightgrey" alt="CLI/GUI Badge">
-    <img src="https://img.shields.io/badge/Encryption-AES-red" alt="Encryption Badge">
-    <img src="https://img.shields.io/badge/License-MIT-blue" alt="License Badge">
-  </p>
+מנהל סיסמאות מודולרי, מאובטח וקל לשימוש הכולל ממשק CLI מקצועי, כיסוי בדיקות (Tests) מלא ו-CI/CD.
 
-  <br/>
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
+![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
+![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
+![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange) <br><br>
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
 
-  <h2 align="center">🎬 Demo / המחשה</h2>
+</div>
 
-  <br/>
+---
 
-  <table align="center">
-  <tr>
-    <td align="center">
-      <img src="assets/password_manager_image2.PNG" width="350" alt="מסך יצירת סיסמא לכספת" />
-      <br><b>מסך יצירת סיסמא לכספת</b>
-    </td>
-    <td align="center">
-      <img src="assets/password_manager_image1.PNG" width="350" alt="מסך כספת הסיסמאות" />
-      <br><b>מסך כספת הסיסמאות</b>
-    </td>
-  </tr>
+## 🚀 תכונות עיקריות
+
+* **ארכיטקטורה מודולרית:** הפרדה מלאה בין לוגיקה קריפטוגרפית (`core`) לבין ממשק ה-CLI והאחסון.
+* **אבטחה חזקה:** גזירת מפתחות באמצעות PBKDF2-HMAC-SHA256 (עם 390,000 איטרציות ברירת מחדל) והצפנת AES-128-GCM (Fernet).
+* **אחסון מוצפן מקומית:** הכספת (Vault) נשמרת בקובץ מוצפן יחיד (`vault.json`).
+* **CLI Shortcut ייעודי:** הרצת הפקודה `passmgr` ישירות מהטרמינל.
+* **אינטגרציה ללוח (Clipboard):** העתקת סיסמאות מהירה בלחיצת כפתור או דרך דגל ב-CLI (עם `pyperclip`).
+* **בדיקות ו-CI/CD:** כיסוי בדיקות יחידה ב-`pytest` והרצה אוטומטית דרך GitHub Actions.
+
+---
+
+## 📦 התקנה והרצה
+
+**1. שכפול הרפוזיטורי:**
+
+</div>
+
+```bash
+git clone [https://github.com/RazEini/Password_Manager.git](https://github.com/RazEini/Password_Manager.git)
+cd Password_Manager
+```
+
+<div align="right" dir="rtl">
+
+**2. התקנת החבילה במצב פיתוח (Editable mode):**
+
+</div>
+
+```bash
+pip install -e .
+```
+
+<div align="right" dir="rtl">
+
+**3. הרצת בדיקות יחידה (Unit Tests):**
+
+</div>
+
+```bash
+pytest
+```
+
+<div align="right" dir="rtl">
+
+---
+
+<h2 align="center">
+  💻 CLI – פקודות עיקריות (`passmgr`)
+</h2>
+
+<div align="center">
+
+<table align="center">
+  <thead>
+    <tr>
+      <th align="center">פקודה</th>
+      <th align="center">תיאור</th>
+      <th align="center">דוגמה</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><code>init</code></td>
+      <td align="center">יצירת Vault מוצפן חדש</td>
+      <td align="left"><code>passmgr --vault myvault.json init</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>add</code></td>
+      <td align="center">הוספה או עדכון של סיסמה לשירות</td>
+      <td align="left"><code>passmgr add --service github --user myusername</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>get</code></td>
+      <td align="center">שליפת סיסמה (ואפשרות העתקה ללוח)</td>
+      <td align="left"><code>passmgr get --service github --copy</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>list</code></td>
+      <td align="center">הצגת כל השירותים הקיימים בכספת</td>
+      <td align="left"><code>passmgr list</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>delete</code></td>
+      <td align="center">מחיקת רשומה מהכספת</td>
+      <td align="left"><code>passmgr delete --service github</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>change-master</code></td>
+      <td align="center">שינוי סיסמת מאסטר והצפנה מחדש</td>
+      <td align="left"><code>passmgr change-master</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>generate</code></td>
+      <td align="center">יצירת סיסמה אקראית וחזקה</td>
+      <td align="left"><code>passmgr generate --length 20</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>export-csv</code></td>
+      <td align="center">ייצוא סיסמאות לקובץ CSV</td>
+      <td align="left"><code>passmgr export-csv --path backup.csv</code></td>
+    </tr>
+    <tr>
+      <td align="center"><code>import-csv</code></td>
+      <td align="center">ייבוא סיסמאות מקובץ CSV</td>
+      <td align="left"><code>passmgr import-csv --path backup.csv</code></td>
+    </tr>
+  </tbody>
 </table>
 
-<br/>
+</div>
 
-  <hr>
+---
 
-  <h2>🚀 תכונות</h2>
-  <ul>
-    <li>סיסמת מאסטר → מפתח חזק (PBKDF2-HMAC-SHA256)</li>
-    <li>הצפנת AES-128-GCM (Fernet)</li>
-    <li>Vault יחיד בקובץ JSON (מוצפן כולו)</li>
-    <li>ממשק CLI ו‑GUI (Tkinter)</li>
-    <li>העתקת סיסמאות ללוח (עם <code>pyperclip</code>)</li>
-    <li>בדיקת חוזק סיסמה בזמן הקלדה (GUI)</li>
-  </ul>
+## 🛡️ אבטחה וגזירת מפתחות
 
-  <hr>
+היישום אינו שומר את סיסמת המאסטר בדיסק באף שלב. המפתח הקריפטוגרפי נגזר בזמן אמת מתוך סיסמת המאסטר וה-Salt הדינמי המאוחסן בקובץ ה-Vault.
 
-  <h2>💪 בדיקת חוזק סיסמה</h2>
-  <p>היישום בודק אם סיסמה מכילה:</p>
-  <ul>
-    <li>מינימום 8 תווים</li>
-    <li>אותיות קטנות</li>
-    <li>אותיות גדולות</li>
-    <li>ספרות</li>
-    <li>תווים מיוחדים (<code>!@#$%^&*()-_=+[]{}|;:,.&lt;&gt;?/~`</code>)</li>
-  </ul>
-  <p>ב‑GUI, בעת הקלדת סיסמה, מוצג צבע רקע ירוק אם היא חזקה, אדום אם חלשה, ורשימת החוסרים מופיעה מתחת לשדה ההקלדה.</p>
+---
 
-  <hr>
+## 📄 רישיון
 
-  <br>
-  <h2 align="center">💻 CLI – פקודות עיקריות</h2>
-  <br>
-  <table align="center" dir="rtl">
-    <thead>
-      <tr>
-        <th>פקודה</th>
-        <th>תיאור</th>
-        <th>דוגמה</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>init</td><td>יצירת Vault חדש</td><td><code>python password_manager.py init --vault myvault.json</code></td></tr>
-      <tr><td>add</td><td>הוספה או עדכון סיסמה</td><td><code>python password_manager.py add --vault myvault.json --service gmail --user raz</code></td></tr>
-      <tr><td>get</td><td>קבלת סיסמה</td><td><code>python password_manager.py get --vault myvault.json --service gmail --copy</code></td></tr>
-      <tr><td>list</td><td>הצגת כל השירותים</td><td><code>python password_manager.py list --vault myvault.json</code></td></tr>
-      <tr><td>delete</td><td>מחיקת שירות וסיסמה</td><td><code>python password_manager.py delete --vault myvault.json --service gmail</code></td></tr>
-      <tr><td>change-master</td><td>שינוי סיסמת מאסטר</td><td><code>python password_manager.py change-master --vault myvault.json</code></td></tr>
-      <tr><td>generate</td><td>יצירת סיסמה חזקה (8–64 תווים)</td><td><code>python password_manager.py generate --length 24</code></td></tr>
-      <tr><td>import-csv</td><td>ייבוא סיסמאות מקובץ CSV</td><td><code>python password_manager.py import-csv --vault myvault.json --path passwords.csv</code></td></tr>
-      <tr><td>export-csv</td><td>ייצוא סיסמאות לקובץ CSV</td><td><code>python password_manager.py export-csv --vault myvault.json --path backup.csv</code></td></tr>
-    </tbody>
-  </table>
+הפרויקט מופץ תחת רישיון **MIT** – חופשי לשימוש, שינוי והפצה. למידע נוסף ראה את קובץ [LICENSE](LICENSE).
 
-  <hr>
+---
 
-  <h2 align="center">🖥️ GUI – תכונות</h2>
-  <br>
-  <ul>
-    <li>רשימת שירותים עם פרטי שם משתמש וסיסמה</li>
-    <li>כפתור "Add" להוספת שירות חדש</li>
-    <li>כפתור "Delete" למחיקה</li>
-    <li>כפתור "Change Master Password" לשינוי סיסמת מאסטר</li>
-    <li>כפתור "Generate Password" ליצירת סיסמה חזקה</li>
-    <li>הצגת פרטי שירות בפאנל נפרד עם אפשרות העתקה ללוח</li>
-    <li>שדה סיסמה עם אפשרות להראות/להסתיר סיסמה</li>
-  </ul>
-
-  <hr>
-
-  <h2>📄 רישיון</h2>
-  <p>
-    הפרויקט מופץ תחת רישיון <strong>MIT</strong> – חופשי לשימוש, שינוי והפצה, כל עוד נשמר קרדיט למחבר.
-  </p>
-  <p>למידע נוסף ראה את קובץ <a href="LICENSE">LICENSE</a></p>
-
-  <hr>
-
-  <p align="center"><strong>👨‍💻 Raz Eini (2025)</strong></p>
+<h4 align="center">
+  👨‍💻 Raz Eini (2026)
+</h4>
 
 </div>
