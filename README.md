@@ -58,6 +58,7 @@ pip install -e .
 </div>
 
 ```bash
+pip install pytest
 pytest
 ```
 
