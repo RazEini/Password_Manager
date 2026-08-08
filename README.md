@@ -213,6 +213,14 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
 </table>
 
 </div>
+<br>
+
+> **💡 Note on Custom Vault Names:**  
+> By default, `passmgr` uses `vault.json` in the current working directory. If you want to use a custom file name (e.g., `myvault.json`), append `--vault <filename>` to **any** command:
+> ```bash
+> passmgr --vault myvault.json init
+> passmgr --vault myvault.json add --service github --user myusername
+> ```
 
 ---
 
