@@ -29,7 +29,35 @@
 * **בדיקות ו-CI/CD:** כיסוי בדיקות יחידה ב-`pytest` והרצה אוטומטית דרך GitHub Actions.
 
 ---
-
+<h2 align="center">📂 Project Structure</h2>
+<div dir="ltr" align="left">
+  <pre><code>PASSWORD_MANAGER/
+├── .github/
+│   └── workflows/
+│       └── test.yml
+├── src/
+│   └── password_manager/
+│       ├── cli/
+│       │   ├── __init__.py
+│       │   └── main.py
+│       ├── core/
+│       │   ├── __init__.py
+│       │   ├── crypto.py
+│       │   └── vault.py
+│       ├── __init__.py
+│       └── interactive.py
+├── tests/
+│   ├── test_crypto.py
+│   └── test_vault.py
+├── .gitignore
+├── LICENSE
+├── pyproject.toml
+├── README.md
+└── requirements.txt</code></pre>
+</div>
+<br>
+<hr>
+ 
 ## 📦 התקנה והרצה
 
 **1. שכפול הרפוזיטורי:**
