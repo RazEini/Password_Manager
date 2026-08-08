@@ -167,7 +167,7 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
     <tr>
       <td align="center"><code>init</code></td>
       <td align="center">Create a new encrypted Vault</td>
-      <td align="left"><code>passmgr --vault myvault.json init</code></td>
+      <td align="left"><code>passmgr init</code></td>
     </tr>
     <tr>
       <td align="center"><code>add</code></td>
