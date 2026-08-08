@@ -29,7 +29,7 @@
 * **בדיקות ו-CI/CD:** כיסוי בדיקות יחידה ב-`pytest` והרצה אוטומטית דרך GitHub Actions.
 
 ---
-<h2 align="center">📂 Project Structure</h2>
+<h2 align="center"> מבנה הפרוייקט 📂</h2>
 <div dir="ltr" align="left">
   <pre><code>PASSWORD_MANAGER/
 ├── .github/
