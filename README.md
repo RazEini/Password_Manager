@@ -20,7 +20,7 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 
 * **Modular Architecture:** Full separation between the cryptographic logic (`core`) and the CLI/storage interface.
 * **Interactive Menu (TUI):** Running `passmgr` with no arguments opens an arrow-key navigation menu built with `questionary` and `rich`, offering List / Get / Add / Delete / Generate options directly from the menu.
-* **Strong Security:** Key derivation via PBKDF2-HMAC-SHA256 (390,000 iterations by default) and AES-128-GCM encryption (Fernet).
+* **Strong Security:** Key derivation via PBKDF2-HMAC-SHA256 (390,000 iterations by default) and Fernet symmetric encryption (AES-128-CBC + HMAC-SHA256).
 * **Local Encrypted Storage:** The vault is stored in a single encrypted file (`vault.json`).
 * **Dedicated CLI Shortcut:** Run the `passmgr` command directly from the terminal, with or without subcommands.
 * **Clipboard Integration:** Quick password copying with a single keypress or a CLI flag (using `pyperclip`).
