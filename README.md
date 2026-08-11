@@ -7,7 +7,7 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
 ![TUI](https://img.shields.io/badge/TUI-Interactive-purple?logo=windowsterminal)
-![Encryption](https://img.shields.io/badge/Encryption-AES--128--GCM-red)
+![Encryption](https://img.shields.io/badge/Encryption-AES--128--CBC%20%26%20HMAC-red)
 ![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange) <br><br>
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
