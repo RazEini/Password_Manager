@@ -4,6 +4,7 @@
 
 A modular, secure, and easy-to-use password manager featuring a professional CLI interface, an **interactive menu (TUI)** with arrow-key navigation, full test coverage, and CI/CD.
 
+[![PyPI version](https://img.shields.io/pypi/v/razeini-password-manager.svg)](https://pypi.org/project/razeini-password-manager/)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
 ![TUI](https://img.shields.io/badge/TUI-Interactive-purple?logo=windowsterminal)
@@ -11,6 +12,7 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 ![KDF](https://img.shields.io/badge/KDF-PBKDF2--SHA256-orange) <br><br>
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![Tests](https://github.com/RazEini/Password_Manager/actions/workflows/test.yml/badge.svg)
+![CD](https://github.com/RazEini/Password_Manager/actions/workflows/publish.yml/badge.svg)
 
 </div>
 
@@ -24,7 +26,7 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 * **Local Encrypted Storage:** The vault is stored in a single encrypted file (`vault.json`).
 * **Dedicated CLI Shortcut:** Run the `passmgr` command directly from the terminal, with or without subcommands.
 * **Clipboard Integration:** Quick password copying with a single keypress or a CLI flag (using `pyperclip`).
-* **Testing & CI/CD:** Unit test coverage with `pytest`, run automatically via GitHub Actions.
+* **Testing & CI/CD:** Unit test coverage with `pytest` and automated PyPI deployment via GitHub Actions.
 
 ---
 <h2 align="center">Project Structure 📂</h2>
@@ -32,6 +34,7 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
   <pre><code>PASSWORD_MANAGER/
 ├── .github/
 │   └── workflows/
+│       ├── publish.yml
 │       └── test.yml
 ├── src/
 │   └── password_manager/
@@ -57,6 +60,14 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 <hr>
 
 ## 📦 Installation & Running
+
+### Option 1: Install from PyPI (Recommended)
+
+```bash
+pip install razeini-password-manager
+```
+
+### Option 2: Install for Development
 
 **1. Clone the repository:**
 
