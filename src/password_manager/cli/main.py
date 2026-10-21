@@ -4,12 +4,12 @@ import getpass
 import json
 import os
 import sys
+import time
 
-try:
-    import pyperclip
-    HAS_PYPERCLIP = True
-except Exception:
-    HAS_PYPERCLIP = False
+from password_manager import clipboard
+from password_manager.clipboard import DEFAULT_CLEAR_SECONDS, ClipboardGuard
+
+HAS_PYPERCLIP = clipboard.available()
 
 try:
     import questionary
@@ -20,7 +20,7 @@ try:
 except Exception:
     HAS_TUI = False
 
-from password_manager.core.crypto import generate_password
+from password_manager.core.crypto import DEFAULT_ITERATIONS, generate_password
 from password_manager.core.vault import Vault, VaultError
 
 console = Console() if HAS_TUI else None
@@ -39,18 +39,45 @@ def prompt_master(confirm: bool = False) -> str:
     return pw1
 
 
+def hint_upgrade(v: Vault) -> None:
+    """Tell the user when a vault still uses an older, lower PBKDF2 work factor."""
+    if v.kdf and v.kdf.iterations < DEFAULT_ITERATIONS:
+        print(
+            f"Note: this vault uses {v.kdf.iterations:,} PBKDF2 iterations "
+            f"(current default {DEFAULT_ITERATIONS:,}). Run `passmgr change-master` to upgrade it.",
+            file=sys.stderr,
+        )
+
+
+def copy_secret(text: str, seconds: int) -> None:
+    """Copy to the clipboard, wait, then clear it (blocks so the clear actually happens)."""
+    guard = ClipboardGuard(seconds=0)
+    guard.copy(text)
+    if seconds <= 0:
+        print("Clipboard auto-clear is disabled.", file=sys.stderr)
+        return
+    print(f"Copied. Clipboard clears in {seconds}s (Ctrl+C clears it now).")
+    try:
+        time.sleep(seconds)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        guard.close()
+
+
 def cmd_init(args):
     v = Vault(args.vault)
     master = prompt_master(confirm=True)
     iters = args.iterations
     v.init_new(master, iterations=iters)
-    print(f"Initialized vault at {args.vault} with {iters} PBKDF2 iterations.")
+    print(f"Initialized vault at {args.vault} with {iters:,} PBKDF2 iterations.")
 
 
 def cmd_list(args):
     v = Vault(args.vault)
     master = prompt_master()
     services = v.list_services(master)
+    hint_upgrade(v)
     if services:
         for s in services:
             print(s)
@@ -62,12 +89,13 @@ def cmd_get(args):
     v = Vault(args.vault)
     master = prompt_master()
     entry = v.get_entry(master, args.service)
+    hint_upgrade(v)
     if args.copy:
         if not HAS_PYPERCLIP:
             print("pyperclip not installed; cannot copy to clipboard.")
         else:
-            pyperclip.copy(entry["password"])
             print(f"Password for {args.service} copied to clipboard.")
+            copy_secret(entry["password"], args.clear_after)
     else:
         print(json.dumps(entry, indent=2))
 
@@ -132,37 +160,28 @@ def cmd_export_csv(args):
     import csv
     v = Vault(args.vault)
     master = prompt_master()
-    data = v._load_decrypted(master)
-    entries = data.get("entries", {})
-    with open(args.path, "w", newline="", encoding="utf-8") as f:
+    entries = v.export_entries(master)
+    # The export is PLAINTEXT. Create it owner-only (0600 on POSIX) and say so.
+    fd = os.open(args.path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["service", "username", "password", "notes"])
         for svc, e in entries.items():
             w.writerow([svc, e.get("username", ""), e.get("password", ""), e.get("notes", "")])
     print(f"Exported {len(entries)} entries to {args.path}")
+    print("WARNING: this file contains your passwords in PLAINTEXT. Delete it when you are done.", file=sys.stderr)
 
 
 def cmd_import_csv(args):
     import csv
     v = Vault(args.vault)
     master = prompt_master()
-    data = v._load_decrypted(master)
-    entries = data.setdefault("entries", {})
-    count = 0
     with open(args.path, "r", newline="", encoding="utf-8") as f:
-        for i, row in enumerate(csv.DictReader(f)):
-            svc = row.get("service")
-            if not svc:
-                print(f"Skipping row {i+2}: missing service")
-                continue
-            entries[svc] = {
-                "username": row.get("username", ""),
-                "password": row.get("password", ""),
-                "notes": row.get("notes", ""),
-                "updated": v._load_decrypted(master).get("updated", ""),
-            }
-            count += 1
-    v._save_encrypted(master, data)
+        rows = list(csv.DictReader(f))
+    skipped = [i + 2 for i, row in enumerate(rows) if not row.get("service")]
+    for line in skipped:
+        print(f"Skipping row {line}: missing service")
+    count = v.merge_entries(master, rows)
     print(f"Imported/updated {count} entries from {args.path}")
 
 
@@ -177,7 +196,7 @@ def run_interactive_tui(vault_path: str):
     console.clear()
     banner = Panel.fit(
         "[bold cyan]🔐 SECURE CLI PASSWORD MANAGER[/bold cyan]\n"
-        "[dim]AES-128-GCM • PBKDF2 Key Derivation • Authenticated Vault[/dim]",
+        "[dim]Fernet (AES-128-CBC + HMAC-SHA256) • PBKDF2 Key Derivation[/dim]",
         border_style="cyan",
         title="[bold green]Interactive Mode[/bold green]",
         subtitle="[bold yellow]Raz Eini[/bold yellow]"
@@ -185,8 +204,9 @@ def run_interactive_tui(vault_path: str):
     console.print(banner)
 
     v = Vault(vault_path)
+    guard = ClipboardGuard(seconds=DEFAULT_CLEAR_SECONDS)
 
-    # בדיקה האם הקובץ קיים; במידה ולא - מציע ליצור כספת חדשה
+    # If the vault file does not exist, offer to create a new one.
     if not os.path.exists(vault_path):
         console.print(f"[yellow]⚠️ Vault file '{vault_path}' not found.[/yellow]")
         create_new = questionary.confirm("Would you like to initialize a new vault now?").ask()
@@ -232,6 +252,7 @@ def run_interactive_tui(vault_path: str):
         ).ask()
 
         if choice is None or choice == "Lock & Exit":
+            guard.close()  # clear anything we copied before leaving
             console.print("[bold red]🔒 Vault locked. Goodbye![/bold red]")
             break
 
@@ -260,8 +281,8 @@ def run_interactive_tui(vault_path: str):
                         console.print(f"[bold dim]Notes:[/bold dim] {entry.get('notes')}")
 
                     if HAS_PYPERCLIP and questionary.confirm("Copy password to clipboard?").ask():
-                        pyperclip.copy(entry.get("password", ""))
-                        console.print("[bold green]✔ Password copied to clipboard![/bold green]")
+                        guard.copy(entry.get("password", ""))
+                        console.print(f"[bold green]✔ Password copied. The clipboard clears in {DEFAULT_CLEAR_SECONDS}s.[/bold green]")
                 except VaultError as e:
                     console.print(f"[bold red]Error: {e}[/bold red]")
             questionary.press_any_key_to_continue().ask()
@@ -300,8 +321,8 @@ def run_interactive_tui(vault_path: str):
                 pwd = generate_password(length=l_int)
                 console.print(f"\n[bold cyan]Generated Password:[/bold cyan] [bold yellow]{pwd}[/bold yellow]")
                 if HAS_PYPERCLIP and questionary.confirm("Copy to clipboard?").ask():
-                    pyperclip.copy(pwd)
-                    console.print("[bold green]✔ Copied to clipboard![/bold green]")
+                    guard.copy(pwd)
+                    console.print(f"[bold green]✔ Copied. The clipboard clears in {DEFAULT_CLEAR_SECONDS}s.[/bold green]")
             except ValueError:
                 console.print("[bold red]Invalid length input.[/bold red]")
             questionary.press_any_key_to_continue().ask()
@@ -314,7 +335,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd")
 
     sp = sub.add_parser("init", help="Initialize a new empty vault")
-    sp.add_argument("--iterations", type=int, default=390_000, help="PBKDF2 iterations (default: 390000)")
+    sp.add_argument("--iterations", type=int, default=DEFAULT_ITERATIONS, help=f"PBKDF2 iterations (default: {DEFAULT_ITERATIONS})")
     sp.set_defaults(func=cmd_init)
 
     sp = sub.add_parser("list", help="List all services in the vault")
@@ -323,6 +344,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("get", help="Get an entry by service name")
     sp.add_argument("--service", required=True)
     sp.add_argument("--copy", action="store_true", help="Copy password to clipboard (requires pyperclip)")
+    sp.add_argument("--clear-after", type=int, default=DEFAULT_CLEAR_SECONDS, metavar="SECONDS",
+                    help=f"Clear the clipboard after this many seconds; 0 disables (default: {DEFAULT_CLEAR_SECONDS})")
     sp.set_defaults(func=cmd_get)
 
     sp = sub.add_parser("add", help="Add or update an entry")
@@ -353,7 +376,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--no-symbols", action="store_true", help="Exclude symbols")
     sp.set_defaults(func=cmd_generate)
 
-    sp = sub.add_parser("export-csv", help="Export all entries to CSV (plaintext)")
+    sp = sub.add_parser("export-csv", help="Export all entries to CSV (PLAINTEXT, owner-only file)")
     sp.add_argument("--path", required=True, help="CSV file path")
     sp.set_defaults(func=cmd_export_csv)
 

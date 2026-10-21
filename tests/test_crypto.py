@@ -29,3 +29,13 @@ def test_kdf_derivation_different_passwords():
     key1 = derive_key("PasswordOne123", params)
     key2 = derive_key("PasswordTwo123", params)
     assert key1 != key2
+
+def test_default_iterations_follow_owasp_guidance():
+    from password_manager.core.crypto import DEFAULT_ITERATIONS
+    assert DEFAULT_ITERATIONS >= 600_000
+    assert KDFParams.new().iterations == DEFAULT_ITERATIONS
+    assert KDFParams().iterations == DEFAULT_ITERATIONS
+
+
+def test_each_vault_gets_a_fresh_salt():
+    assert KDFParams.new(iterations=1000).salt != KDFParams.new(iterations=1000).salt

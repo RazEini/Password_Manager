@@ -9,6 +9,12 @@ from cryptography.fernet import Fernet
 
 EXCLUDE_SIMILAR = {"l", "I", "1", "O", "0"}
 
+# PBKDF2-HMAC-SHA256 work factor for NEW vaults. OWASP recommends 600,000 for
+# PBKDF2-HMAC-SHA256. Each vault stores its own iteration count, so vaults
+# created with older defaults (390,000) keep opening; `change-master`
+# upgrades them.
+DEFAULT_ITERATIONS = 600_000
+
 def b64e(b: bytes) -> str:
     return base64.urlsafe_b64encode(b).decode("utf-8")
 
@@ -18,11 +24,11 @@ def b64d(s: str) -> bytes:
 @dataclass
 class KDFParams:
     name: str = "PBKDF2HMAC"
-    iterations: int = 390_000
+    iterations: int = DEFAULT_ITERATIONS
     salt: str = ""
 
     @staticmethod
-    def new(iterations: int = 390_000) -> "KDFParams":
+    def new(iterations: int = DEFAULT_ITERATIONS) -> "KDFParams":
         salt = os.urandom(16)
         return KDFParams(iterations=iterations, salt=b64e(salt))
 

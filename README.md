@@ -2,10 +2,10 @@
 
 # 🔐 Python Password Manager
 
-A modular, secure, and easy-to-use password manager featuring a professional CLI interface, an **interactive menu (TUI)** with arrow-key navigation, full test coverage, and CI/CD.
+A modular, secure, and easy-to-use password manager featuring a professional CLI interface, an **interactive menu (TUI)** with arrow-key navigation, a pytest suite covering the cryptographic core, vault storage and CLI, and CI/CD.
 
 [![PyPI version](https://img.shields.io/pypi/v/razeini-password-manager.svg)](https://pypi.org/project/razeini-password-manager/)
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![CLI](https://img.shields.io/badge/CLI-Executable-brightgreen)
 ![TUI](https://img.shields.io/badge/TUI-Interactive-purple?logo=windowsterminal)
 ![Encryption](https://img.shields.io/badge/Encryption-AES--128--CBC%20%26%20HMAC-red)
@@ -22,11 +22,12 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 
 * **Modular Architecture:** Full separation between the cryptographic logic (`core`) and the CLI/storage interface.
 * **Interactive Menu (TUI):** Running `passmgr` with no arguments opens an arrow-key navigation menu built with `questionary` and `rich`, offering List / Get / Add / Delete / Generate options directly from the menu.
-* **Strong Security:** Key derivation via PBKDF2-HMAC-SHA256 (390,000 iterations by default) and Fernet symmetric encryption (AES-128-CBC + HMAC-SHA256).
+* **Strong Security:** Key derivation via PBKDF2-HMAC-SHA256 (600,000 iterations by default, following OWASP guidance) and Fernet authenticated encryption (AES-128-CBC + HMAC-SHA256).
+* **Safe Storage:** Atomic vault writes (temporary file, `fsync`, then replace), so an interrupted save never corrupts the vault; owner-only file permissions (`0600` on Linux/macOS).
 * **Local Encrypted Storage:** The vault is stored in a single encrypted file (`vault.json`).
 * **Dedicated CLI Shortcut:** Run the `passmgr` command directly from the terminal, with or without subcommands.
-* **Clipboard Integration:** Quick password copying with a single keypress or a CLI flag (using `pyperclip`).
-* **Testing & CI/CD:** Unit test coverage with `pytest` and automated PyPI deployment via GitHub Actions.
+* **Clipboard Integration:** Quick password copying with a single keypress or a CLI flag (using `pyperclip`). The clipboard is cleared after 30 seconds, and only if it still holds the copied password.
+* **Testing & CI/CD:** `pytest` suite with coverage reporting on Python 3.10–3.13, and automated PyPI deployment on tagged releases via GitHub Actions.
 
 ---
 <h2 align="center">Project Structure 📂</h2>
@@ -46,8 +47,10 @@ A modular, secure, and easy-to-use password manager featuring a professional CLI
 │       │   ├── crypto.py
 │       │   └── vault.py
 │       ├── __init__.py
-│       └── interactive.py
+│       └── clipboard.py
 ├── tests/
+│   ├── test_cli.py
+│   ├── test_clipboard.py
 │   ├── test_crypto.py
 │   └── test_vault.py
 ├── .gitignore
@@ -85,8 +88,8 @@ pip install -e .
 **3. Run unit tests:**
 
 ```bash
-pip install pytest
-pytest
+pip install -r requirements.txt
+pytest --cov=src --cov-report=term-missing
 ```
 
 ---
@@ -187,7 +190,7 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
     </tr>
     <tr>
       <td align="center"><code>get</code></td>
-      <td align="center">Retrieve a password (with an option to copy to clipboard)</td>
+      <td align="center">Retrieve a password. With <code>--copy</code> the clipboard is cleared after 30 s (<code>--clear-after N</code> to change, <code>0</code> to disable)</td>
       <td align="left"><code>passmgr get --service github --copy</code></td>
     </tr>
     <tr>
@@ -212,7 +215,7 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
     </tr>
     <tr>
       <td align="center"><code>export-csv</code></td>
-      <td align="center">Export passwords to a CSV file</td>
+      <td align="center">Export passwords to a CSV file (<b>plaintext</b>, created owner-only)</td>
       <td align="left"><code>passmgr export-csv --path backup.csv</code></td>
     </tr>
     <tr>
@@ -237,7 +240,24 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
 
 ## 🛡️ Security & Key Derivation
 
-The application never stores the master password on disk at any stage. The cryptographic key is derived in real time from the master password and the dynamic Salt stored in the Vault file. Even in interactive mode, password entry is handled via `questionary.password`, which masks the characters as they're typed, just like `getpass` does in the standard CLI mode.
+The application never stores the master password on disk. The key is derived in real time from the master password and the per-vault random salt stored in the vault file, and the vault file holds only the KDF parameters and the Fernet ciphertext (service names, usernames and notes are encrypted too). Password entry uses `getpass` in CLI mode and `questionary.password` in the TUI, so characters are never echoed.
+
+**What is in place**
+
+* **Key derivation:** PBKDF2-HMAC-SHA256, 600,000 iterations by default, with a fresh 16-byte salt per vault and on every master-password change.
+* **Authenticated encryption:** Fernet (AES-128-CBC + HMAC-SHA256). A wrong password or a tampered file fails authentication and never yields partial data.
+* **Durable writes:** the vault is written to a temporary file in the same directory, flushed and `fsync`ed, then atomically swapped in with `os.replace()`. A crash or full disk leaves the previous vault intact.
+* **File permissions:** the vault (and CSV exports) are created owner-only (`0600`) on Linux and macOS.
+* **Clipboard hygiene:** copied passwords are cleared after 30 seconds, unless you copied something else in the meantime.
+
+**Upgrading an older vault.** Each vault stores its own iteration count, so vaults created with the previous default (390,000) keep working. `passmgr` prints a hint when it opens one, and `passmgr change-master` re-encrypts it at the current default.
+
+**Scope and limits**
+
+* `export-csv` writes your passwords in **plaintext** by design. Delete the file when you are done.
+* While the program is running, the master password and decrypted entries exist in process memory; there is no memory locking or secure wipe (a Python limitation).
+* On Windows, `0600` maps only to the read-only bit, so rely on the user profile's NTFS permissions.
+* Clipboard managers or other programs may read the clipboard before it is cleared.
 
 ---
 

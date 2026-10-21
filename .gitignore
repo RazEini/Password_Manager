@@ -61,25 +61,26 @@ Desktop.ini
 *.swp
 
 # -----------------------
-# Vault / Password Files - Smart
+# Vault files & plaintext exports
 # -----------------------
-# Ignore any file whose name contains sensitive keywords
-# (case-insensitive)
-*[Vv][Aa][Uu][Ll][Tt]*  # anything with 'vault'
-*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]*  # anything with 'password'
-*[Ss][Ee][Cc][Rr][Ee][Tt]*  # anything with 'secret'
+# Keep patterns specific: broad globs such as *password* or *vault* would also
+# match this project's own source (src/password_manager/, core/vault.py).
+# Git does not support trailing comments, so comments live on their own lines.
+
+# Vaults created by `passmgr init` (the default name is vault.json)
+vault.json
+*vault*.json
+*.vault
+
+# Plaintext exports from `passmgr export-csv` can have any name
+*.csv
+
+# Keys and environment files
 *.env
 *.key
 *.pem
 *.crt
 *.p12
-
-# -----------------------
-# CSV files with sensitive info
-# -----------------------
-*[Vv][Aa][Uu][Ll][Tt]*.csv
-*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]*.csv
-*[Ss][Ee][Cc][Rr][Ee][Tt]*.csv
 
 __pycache__/
 *.pyc
