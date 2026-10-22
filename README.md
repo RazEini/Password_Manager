@@ -250,7 +250,7 @@ The application never stores the master password on disk. The key is derived in 
 * **File permissions:** the vault (and CSV exports) are created owner-only (`0600`) on Linux and macOS.
 * **Clipboard hygiene:** copied passwords are cleared after 30 seconds, unless you copied something else in the meantime.
 
-**Upgrading an older vault.** Each vault stores its own iteration count, so vaults created with the previous default (390,000) keep working. `passmgr` prints a hint when it opens one, and `passmgr change-master` re-encrypts it at the current default.
+**Upgrading an older vault.** Each vault stores its own iteration count, so vaults created with the previous default (390,000) keep working. `passmgr` prints a hint when it opens one, and `passmgr change-master` re-encrypts it at the current default. Passing a lower value with `--iterations` prints a warning.
 
 **Scope and limits**
 

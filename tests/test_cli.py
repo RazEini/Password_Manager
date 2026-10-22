@@ -91,6 +91,38 @@ def test_old_vaults_get_an_upgrade_hint(run, capsys):
     assert "change-master" in err and "1,000" in err
 
 
+def test_very_low_iteration_count_triggers_a_warning(run, capsys):
+    run("init", "--iterations", "1000")
+    err = capsys.readouterr().err
+    assert "VERY weak" in err and "1,000" in err
+
+
+def test_mid_range_iteration_count_gets_a_softer_note(run, capsys):
+    run("init", "--iterations", "300000")
+    err = capsys.readouterr().err
+    assert "below the recommended" in err and "VERY weak" not in err
+
+
+def test_default_iteration_count_is_silent(run, capsys):
+    run("init")  # real default work factor
+    assert "weak" not in capsys.readouterr().err.lower()
+    assert "below the recommended" not in capsys.readouterr().err
+
+
+def test_change_master_warns_on_an_explicit_weak_value(run, capsys):
+    run("init", "--iterations", "1000")
+    capsys.readouterr()
+    run("change-master", "--iterations", "2000", answers=[MASTER, "NewMaster456", "NewMaster456"])
+    assert "VERY weak" in capsys.readouterr().err
+
+
+def test_change_master_without_a_value_does_not_warn(run, capsys):
+    run("init", "--iterations", "1000")
+    capsys.readouterr()
+    run("change-master", answers=[MASTER, "NewMaster456", "NewMaster456"])
+    assert "weak" not in capsys.readouterr().err.lower()
+
+
 def test_generate_command(run, capsys):
     run("generate", "--length", "30", "--no-symbols")
     pwd = capsys.readouterr().out.strip()

@@ -49,6 +49,24 @@ def hint_upgrade(v: Vault) -> None:
         )
 
 
+VERY_WEAK_ITERATIONS = 100_000
+
+
+def warn_if_weak(iterations: int) -> None:
+    """A low work factor makes offline guessing of the master password cheap."""
+    if iterations < VERY_WEAK_ITERATIONS:
+        print(
+            f"WARNING: {iterations:,} PBKDF2 iterations is VERY weak "
+            f"(recommended: {DEFAULT_ITERATIONS:,}). Anyone who gets the vault file can guess your master password quickly.",
+            file=sys.stderr,
+        )
+    elif iterations < DEFAULT_ITERATIONS:
+        print(
+            f"Note: {iterations:,} iterations is below the recommended {DEFAULT_ITERATIONS:,}.",
+            file=sys.stderr,
+        )
+
+
 def copy_secret(text: str, seconds: int) -> None:
     """Copy to the clipboard, wait, then clear it (blocks so the clear actually happens)."""
     guard = ClipboardGuard(seconds=0)
@@ -69,6 +87,7 @@ def cmd_init(args):
     v = Vault(args.vault)
     master = prompt_master(confirm=True)
     iters = args.iterations
+    warn_if_weak(iters)
     v.init_new(master, iterations=iters)
     print(f"Initialized vault at {args.vault} with {iters:,} PBKDF2 iterations.")
 
@@ -141,6 +160,8 @@ def cmd_change_master(args):
     if len(new) < 8:
         print("New master password must be at least 8 characters.", file=sys.stderr)
         sys.exit(2)
+    if args.iterations is not None:
+        warn_if_weak(args.iterations)
     v.change_master(old, new, iterations=args.iterations)
     print("Master password changed and vault re-encrypted with fresh salt.")
 
