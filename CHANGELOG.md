@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2
+
+### Fixed
+- README rendering on PyPI: the custom-vault example no longer breaks, and the LICENSE link points to the repository instead of a dead PyPI path.
+
+### Changed
+- Package metadata: added a short description, classifiers, keywords and project links (source, issues, changelog), which PyPI shows in its header and sidebar.
+
 ## 0.2.1
 
 ### Added

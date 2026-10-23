@@ -231,10 +231,11 @@ Once unlocked, an arrow-key navigation menu is displayed with the following opti
 
 > **💡 Note on Custom Vault Names:**  
 > By default, `passmgr` uses `vault.json` in the current working directory. If you want to use a custom file name (e.g., `myvault.json`), append `--vault <filename>` to **any** command:
-> ```bash
-> passmgr --vault myvault.json init
-> passmgr --vault myvault.json add --service github --user myusername
-> ```
+
+```bash
+passmgr --vault myvault.json init
+passmgr --vault myvault.json add --service github --user myusername
+```
 
 ---
 
@@ -263,7 +264,7 @@ The application never stores the master password on disk. The key is derived in 
 
 ## 📄 License
 
-This project is distributed under the **MIT** license – free to use, modify, and distribute. For more information, see the [LICENSE](LICENSE) file.
+This project is distributed under the **MIT** license – free to use, modify, and distribute. For more information, see the [LICENSE](https://github.com/RazEini/Password_Manager/blob/main/LICENSE) file.
 
 ---
 
