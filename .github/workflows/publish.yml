@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+# Least privilege by default; the publish job adds only what it needs.
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Run tests before publishing
@@ -31,6 +35,14 @@ jobs:
     name: Build and publish
     needs: test
     runs-on: ubuntu-latest
+    # Trusted Publishing: PyPI trusts this exact repo + workflow + environment,
+    # so no long-lived API token is stored in the repository.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/razeini-password-manager
+    permissions:
+      contents: read
+      id-token: write   # lets the job request a short-lived OIDC identity token
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,9 +72,7 @@ jobs:
         run: python -m build
 
       - name: Check package metadata and README rendering
-        run: twine check dist/*
+        run: twine check --strict dist/*
 
-      - name: Publish package to PyPI
+      - name: Publish package to PyPI (Trusted Publishing)
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

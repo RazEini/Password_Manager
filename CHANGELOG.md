@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+### Changed
+- Releases are published with PyPI Trusted Publishing (short-lived OIDC credentials) instead of a stored API token, from a protected `pypi` environment.
+- The release workflow runs with least-privilege permissions and `twine check --strict`.
+
 ## 0.2.2
 
 ### Fixed
